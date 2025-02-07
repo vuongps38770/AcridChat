@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "273955278707",
+    "project_id": "acridchat",
+    "storage_bucket": "acridchat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:273955278707:android:645328f536de08d97c3f06",
+        "android_client_info": {
+          "package_name": "com.example.acrid"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9r89o-dhswjoeDDdqp6Lz7b9e4WJz9dA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
