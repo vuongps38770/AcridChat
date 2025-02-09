@@ -13,12 +13,6 @@
         android:theme="@style/Theme.Acrid"
         tools:targetApi="31">
         <activity
-            android:name=".View.Activity.SignUp"
-            android:exported="false" />
-        <activity
-            android:name=".View.Activity.Login"
-            android:exported="false" />
-        <activity
             android:name=".View.Activity.MainActivity"
             android:exported="true">
             <intent-filter>

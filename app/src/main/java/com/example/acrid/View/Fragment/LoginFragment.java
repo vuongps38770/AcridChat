@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.example.acrid.R;
 import com.example.acrid.State.LoginError;
-import com.example.acrid.State.LoginErrorState;
 import com.example.acrid.State.LoginState;
 import com.example.acrid.databinding.FragmentLoginBinding;
 import com.example.acrid.viewModel.LoginViewModel;

@@ -2,29 +2,17 @@ package com.example.acrid.Helper;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.acrid.Constant.DB;
 import com.example.acrid.Model.People;
 import com.example.acrid.Model.User;
-import com.example.acrid.State.LoginError;
-import com.example.acrid.State.LoginErrorState;
 
-import com.example.acrid.State.LoginState;
-import com.example.acrid.State.SignUpErorr;
-import com.example.acrid.State.SignUpState;
 import com.example.acrid.State.SimpleCallBack;
-import com.example.acrid.View.Activity.SignUp;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
