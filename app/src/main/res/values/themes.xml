@@ -3,7 +3,6 @@
     <style name="Base.Theme.Acrid" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-
     </style>
 
     <style name="Theme.Acrid" parent="Base.Theme.Acrid" />

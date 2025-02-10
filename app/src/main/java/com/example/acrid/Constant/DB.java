@@ -2,14 +2,7 @@ package com.example.acrid.Constant;
 
 import androidx.annotation.NonNull;
 
-public enum DB {
-    FRIEND{
-        @NonNull
-        @Override
-        public String toString() {
-            return "friends";
-        }
-    };
+public enum DB {;
     public enum USER_COLLECTION{
         NAME{
             @NonNull
@@ -54,13 +47,15 @@ public enum DB {
             public String toString() {
                 return "pending";
             }
-        },ACCEPTED{
+        }
+        ,ACCEPTED{
             @NonNull
             @Override
             public String toString() {
                 return "accepted";
             }
-        },NONE{
+        }
+        ,NONE{
             @NonNull
             @Override
             public String toString() {
