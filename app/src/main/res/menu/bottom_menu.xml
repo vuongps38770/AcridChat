@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/chat"
+        android:title="Chat"
+        android:icon="@drawable/chat"
+        app:showAsAction="ifRoom"
+        />
+    <item android:id="@+id/contact"
+        android:title="danh bạ"
+        android:icon="@drawable/contacts"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/setting"
+        android:title="Tài khoản"
+        android:icon="@drawable/user"
+        app:showAsAction="ifRoom"/>
+</menu>
