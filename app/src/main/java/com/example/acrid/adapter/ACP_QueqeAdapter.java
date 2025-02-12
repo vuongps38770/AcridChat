@@ -18,30 +18,19 @@ import com.example.acrid.Helper.UserRepo;
 import com.example.acrid.Model.People;
 import com.example.acrid.R;
 
-import org.checkerframework.checker.units.qual.C;
-
 import java.util.List;
 import java.util.Optional;
 
-public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.ViewHolder> {
+public class ACP_QueqeAdapter extends RecyclerView.Adapter<ACP_QueqeAdapter.ViewHolder> {
+    private Context context;
+    private List<People> list;
+    private OnACPbtnClickListener onACPbtnClickListener;
     public void setData(List<People> list){
+        Log.e("setData: ", list.size()+"");
         this.list = list;
         notifyDataSetChanged();
     }
-
-    private Context context;
-    private List<People> list;
-    private OnAddFriendClickedListener onAddFriendClickedListener;
-
-    public OnAddFriendClickedListener getOnAddFriendClickedListener() {
-        return onAddFriendClickedListener;
-    }
-
-    public void setOnAddFriendClickedListener(OnAddFriendClickedListener onAddFriendClickedListener) {
-        this.onAddFriendClickedListener = onAddFriendClickedListener;
-    }
-
-    public FindPeopleAdapter(Context context, List<People> list) {
+    public ACP_QueqeAdapter(Context context, List<People> list) {
         this.context = context;
         this.list = list;
     }
@@ -49,49 +38,49 @@ public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.find_people_item,parent,false));
+        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.acp_queqe_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        People thisPeople= list.get(position);
-
+        People thisPeople = list.get(position);
         Glide.with(holder.profileIMG)
                 .load(thisPeople.getUserUID())
                 .placeholder(R.drawable.load)
                 .error(R.drawable.img)
                 .into(holder.profileIMG);
         holder.status.setText(Optional.ofNullable(thisPeople.getDescription()).orElse("Không có mô tả"));
-        if(UserRepo.getFriendUIDList(UserRepo.getCurrentUserUID()).getValue().contains(thisPeople.getUserUID())){
-            holder.add.setVisibility(View.GONE);
-        }
         holder.name.setText(thisPeople.getIDName());
         holder.add.setOnClickListener(view -> {
             Log.e("click: ", "click");
-            if(onAddFriendClickedListener!=null){
+            if (onACPbtnClickListener != null) {
                 Log.e("click: ", "click");
-                onAddFriendClickedListener.onClicked(thisPeople,holder.getAdapterPosition());
-            }else Log.e("click: ", "not");
+                onACPbtnClickListener.onClicked(thisPeople, holder.getAdapterPosition());
+            } else Log.e("click: ", "not");
         });
-        if(thisPeople.getFriendStatus().equals(DB.FRIEND_STATUS.PENDING.toString()) ){
-            holder.add.setText("Đã gửi lời mời");
-            holder.add.setEnabled(false);
-        }else if (thisPeople.getFriendStatus().equals(DB.FRIEND_STATUS.ACCEPTED.toString()) ){
+            if (thisPeople.getFriendStatus().equals(DB.FRIEND_STATUS.ACCEPTED.toString())) {
             holder.add.setVisibility(View.GONE);
         }
     }
 
     @Override
     public int getItemCount() {
-        if(list!=null) return list.size();
+        Log.d("getItemCount", "getItemCount: " + (list == null ? "null" : list.size()));
+        if (list != null) return list.size();
         return 0;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public void setOnAddFriendClickedListener(OnACPbtnClickListener onACPbtnClickListener) {
+        this.onACPbtnClickListener = onACPbtnClickListener;
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
         ImageView profileIMG;
         TextView name;
         TextView status;
         Button add;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             profileIMG = itemView.findViewById(R.id.imgProfileIMG);
@@ -99,9 +88,8 @@ public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.Vi
             status = itemView.findViewById(R.id.txtStatus);
             add = itemView.findViewById(R.id.btnAdd);
         }
-
     }
-    public interface OnAddFriendClickedListener{
-        void onClicked(People people,int pos);
+    public interface OnACPbtnClickListener {
+        void onClicked(People people, int pos);
     }
 }

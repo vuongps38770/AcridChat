@@ -19,26 +19,24 @@ public class FindPeopleViewModel extends ViewModel {
     public MutableLiveData<String> search = new MutableLiveData<>();
     public MutableLiveData<List<People>> peopleList = new MutableLiveData<>();
     public MutableLiveData<Boolean> isSearching = new MutableLiveData<>();
-    public MutableLiveData<List<String>> friendUIDList = new MutableLiveData<>();
     public MutableLiveData<Integer> changePos = new MutableLiveData<>();
     public MutableLiveData<String> tempERR = new MutableLiveData<>("");
-
 
     public FindPeopleViewModel() {
         isSearching.setValue(false);
         search.setValue("");
         changePos.setValue(-1);
         search.observeForever(query -> {
-            if (query != null && !query.trim().isEmpty()&&!query.equals("")) {
+            if (query != null && !query.trim().isEmpty()&& !query.isEmpty()) {
                 searchPeople();
             }else {
-                peopleList.setValue(new ArrayList<>());
+                peopleList.postValue(new ArrayList<>());
             }
         });
     }
     public void searchPeople() {
         isSearching.setValue(true);
-        UserRepo.getPeopleByEmailorIDName(search.getValue()).observeForever(people -> {
+        UserRepo.getPeopleByEmailorIDName(search.getValue(),People.class).observeForever(people -> {
             peopleList.setValue(people);
             for (People person : people) {
                 Log.e( "onSucess: ", person.getEmail());
@@ -68,7 +66,6 @@ public class FindPeopleViewModel extends ViewModel {
             Log.e("addFriendClick: ","not" );
             return;
         }
-
         People people =peopleList.getValue().get(changePos.getValue());
         String status=people.getFriendStatus();
         if(status.equals(DB.FRIEND_STATUS.NONE.toString())){

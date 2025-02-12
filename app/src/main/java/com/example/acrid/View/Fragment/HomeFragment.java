@@ -4,21 +4,28 @@ import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.acrid.Model.Conversation;
 import com.example.acrid.R;
+import com.example.acrid.adapter.ConversationAdapter;
 import com.example.acrid.databinding.FragmentHomeBinding;
 import com.example.acrid.databinding.FragmentLoginBinding;
 import com.example.acrid.viewModel.HomeViewModel;
 import com.example.acrid.viewModel.LoginViewModel;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -78,10 +85,19 @@ public class HomeFragment extends Fragment {
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         binding.setViewModel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
-        homeViewModel.userUID.observe(getViewLifecycleOwner(), s -> {
-            Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
-        });
         return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        ConversationAdapter adapter = new ConversationAdapter(getContext(),new ArrayList<>());
+        binding.recycler.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+        binding.recycler.setAdapter(adapter);
+        homeViewModel.conversationListData.observe(getViewLifecycleOwner(),conversations -> {
+            adapter.setData(conversations);
+        });
+
     }
 
     @Override
@@ -90,7 +106,7 @@ public class HomeFragment extends Fragment {
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                // nhấn lần 2( nếu tg chờ thấp hơn cái toast thì thoát)
+                // nhấn lần 2( nếu tg chờ thấp hơn 2s thì thoát)
                 if (System.currentTimeMillis() - backPressedTime < 2000) {
                     requireActivity().finish();
                 } else {

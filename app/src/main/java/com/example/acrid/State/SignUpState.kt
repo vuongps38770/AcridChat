@@ -5,7 +5,6 @@ sealed class SignUpState {
     object Success : SignUpState()
     data class Error(val error: List<SignUpErorr>) : SignUpState()
 }
-
 enum class SignUpErorr {
     EMAIL_ALREADY_EXISTS,
     EMAIL_EMPTY,

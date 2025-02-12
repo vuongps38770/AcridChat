@@ -41,7 +41,7 @@ public class AuthRepo {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         user.setUserUID(mAuth.getCurrentUser().getUid());
-                        user.setCreatedDate(System.currentTimeMillis()+"");
+                        user.setCreatedDate(System.currentTimeMillis());
                         user.setProfileIMG(Optional.ofNullable(user.getProfileIMG()).orElse(Const.IMAGE_HOLDER_URL));
                         //lưu thêm thông tin user vào firestore
                         mFirestore.collection(DB.USER_COLLECTION.NAME.toString())

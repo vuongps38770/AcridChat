@@ -2,13 +2,26 @@ package com.example.acrid.View.Fragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.example.acrid.Constant.Const;
+import com.example.acrid.Model.Friend;
 import com.example.acrid.R;
+import com.example.acrid.databinding.FragmentChatBinding;
+import com.example.acrid.viewModel.ChatViewModel;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,11 +69,42 @@ public class ChatFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-
+    FragmentChatBinding binding;
+    ChatViewModel chatViewModel;
+    NavController navController;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_chat, container, false);
+        navController = Navigation.findNavController(requireActivity(),R.id.nav_host_fragment);
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_chat,container,false);
+        binding.setViewModel(chatViewModel);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Bundle bundle = getArguments();
+        if(bundle==null) return;
+        String chatUID=bundle.getString(Const.APP_CHAT_UID_BUNDLE_NAME);
+        if(chatUID==null||chatUID.isEmpty()){
+            chatUID="";
+        }
+        Friend friend =(Friend) bundle.getSerializable(Const.APP_FRIEND_BUNDLE_NAME);
+        if(friend==null){
+            Toast.makeText(getContext(), "ERR, MISSING FRUID DATA", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        binding.name.setText(friend.getIDName());
+        Glide.with(binding.avt).load(friend.getProfileIMG())
+                .placeholder(R.drawable.load)
+                .error(R.drawable.img)
+                .into(binding.avt);
+        binding.imgBack.setOnClickListener(view1 -> {
+            navController.popBackStack();
+        });
+        Toast.makeText(getContext(), chatUID, Toast.LENGTH_SHORT).show();
     }
 }
