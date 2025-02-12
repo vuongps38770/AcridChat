@@ -1,26 +1,10 @@
 package com.example.acrid.Model;
 
-public class People extends BasePeople{
+import java.io.Serializable;
+
+public class Friend extends BasePeople implements Serializable {
     private String userUID,displayName,IDName,email,profileIMG,birthDay,description;
-    private long createdDate;
-    private String status;
-    private String friendStatus = "";
-
-    public String getFriendStatus() {
-        return friendStatus;
-    }
-
-    public void setFriendStatus(String friendStatus) {
-        this.friendStatus = friendStatus;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    long createdDate;
 
     public String getUserUID() {
         return userUID;
@@ -78,11 +62,11 @@ public class People extends BasePeople{
         this.createdDate = createdDate;
     }
 
-    public String getStatus() {
-        return status;
+    public String getDescription() {
+        return description;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

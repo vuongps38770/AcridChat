@@ -64,4 +64,5 @@ public class SignUpViewModel extends ViewModel {
         user.setEmail(email.getValue());
         AuthRepo.saveUser(user,password.getValue(),signUpState);
     }
+    
 }

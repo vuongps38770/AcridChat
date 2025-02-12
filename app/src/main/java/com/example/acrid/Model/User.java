@@ -1,11 +1,23 @@
 package com.example.acrid.Model;
 
-public class User {
-    private String userUID,displayName,IDName,email,profileIMG,birthDay,createdDate,token;
+import java.util.ArrayList;
+import java.util.List;
 
+public class User extends BasePeople{
+    private String userUID,displayName,IDName,email,profileIMG,birthDay,token;
+    long createdDate;
+    private List<String> friend_uid_list = new ArrayList<>();
 
     public String getUserUID() {
         return userUID;
+    }
+
+    public List<String> getFriend_uid_list() {
+        return friend_uid_list;
+    }
+
+    public void setFriend_uid_list(List<String> friend_uid_list) {
+        this.friend_uid_list = friend_uid_list;
     }
 
     public String getToken() {
@@ -60,11 +72,12 @@ public class User {
         this.birthDay = birthDay;
     }
 
-    public String getCreatedDate() {
+    @Override
+    public long getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(String createdDate) {
+    public void setCreatedDate(long createdDate) {
         this.createdDate = createdDate;
     }
 }

@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private final Set<Integer> hiddenBottomBarFrag= new HashSet<>(Arrays.asList(
             R.id.signUpFragment,
             R.id.loginFragment,
+            R.id.chatFragment,
             R.id.findPeopleFragment
     ));
     ActivityMainBinding binding;
@@ -45,43 +46,56 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
         binding.getRoot().post(()->{
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-            binding.bottom.setOnItemReselectedListener(item -> {
+            binding.bottom.setOnItemSelectedListener(item -> {
                 int itemId = item.getItemId();
-                if (itemId == R.id.chat) {
-                    navController.navigate(R.id.chatFragment, null, new NavOptions.Builder()
-                            .setPopUpTo(R.id.chatFragment, true)
+                int currentDestId = navController.getCurrentDestination().getId();
+
+                if (itemId==R.id.chat && currentDestId != R.id.homeFragment) {
+                    navController.navigate(R.id.homeFragment, null, new NavOptions.Builder()
+                            .setPopUpTo(R.id.homeFragment, true)
                             .build());
-                } else if (itemId == R.id.contactFragment) {
+                }else if (itemId == R.id.contact && currentDestId != R.id.contactFragment) {
                     navController.navigate(R.id.contactFragment, null, new NavOptions.Builder()
                             .setPopUpTo(R.id.contactFragment, true)
                             .build());
-                } else if (itemId == R.id.setting) {
+                } else if (itemId == R.id.setting && currentDestId != R.id.settingFragment) {
                     navController.navigate(R.id.settingFragment, null, new NavOptions.Builder()
                             .setPopUpTo(R.id.settingFragment, true)
                             .build());
                 }
+                return true;
             });
 
             navController.addOnDestinationChangedListener((navController1, navDestination, bundle) -> {
-                if (hiddenBottomBarFrag.contains(navDestination)) {
+                int destinationId =navDestination.getId();
+                if (hiddenBottomBarFrag.contains(navDestination.getId())) {
                     binding.bottom.setVisibility(View.GONE);
                 } else {
                     binding.bottom.setVisibility(View.VISIBLE);
                 }
-            });
 
-
-            UserRepo.getUserUID().observe(this, userUID -> {
-                if (userUID != null) {
-                    navController.navigate(R.id.findPeopleFragment, null, new NavOptions.Builder()
-                            .setPopUpTo(R.id.loginFragment, true)
-                            .build());
-
+                if (destinationId == R.id.homeFragment) {
+                    binding.bottom.setSelectedItemId(R.id.chat);
+                } else if (destinationId == R.id.contactFragment) {
+                    binding.bottom.setSelectedItemId(R.id.contact);
+                } else if (destinationId == R.id.settingFragment) {
+                    binding.bottom.setSelectedItemId(R.id.setting);
                 }
             });
+
+            if(UserRepo.getCurrentUserUID()!=null)
+            {
+                navController.navigate(R.id.homeFragment, null, new NavOptions.Builder()
+                        .setPopUpTo(R.id.loginFragment, true)
+                        .build());
+            }
+//            UserRepo.getUserUID().observe(this, userUID -> {
+//                if (userUID != null) {
+//
+//                }
+//            });
         });
 
 

@@ -92,21 +92,25 @@ public class FindPeopleFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        findPeopleViewModel.searchPeople();
+        /// setup adapter
         adapter = new FindPeopleAdapter(getContext(), new ArrayList<>());
         binding.recycler.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recycler.setAdapter(adapter);
+
+        //add friend pos là cập nhật vị trí hiên tại
         adapter.setOnAddFriendClickedListener((people,pos) -> {
             Log.e("onViewCreated: ", pos+"");
             findPeopleViewModel.changePos.setValue(pos);
         });
+
+        ///theo dõi data list người yêu cầu kết bạn
         findPeopleViewModel.peopleList.observe(getViewLifecycleOwner(), people -> {
             Log.d("FindPeopleFragment", "onViewCreated: " + people.size()+"");
-            for (People p : people) {
-                Log.d("FindPeopleFragment", "onViewCreated: " + p.getIDName());
-            }
             adapter.setData(people);
         });
+
+
+        /// theo doi có lỗi thì toast
         findPeopleViewModel.tempERR.observe(getViewLifecycleOwner(),string -> {
             if(!string.isEmpty()) Toast.makeText(getContext(), string, Toast.LENGTH_SHORT).show();
         });
@@ -116,6 +120,8 @@ public class FindPeopleFragment extends Fragment {
                 findPeopleViewModel.changePos.setValue(-1);
             }
         });
+
+        ///theo dõi data trong ô tìm kiếm
         binding.searchbar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {

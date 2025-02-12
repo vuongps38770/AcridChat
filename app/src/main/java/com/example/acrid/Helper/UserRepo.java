@@ -6,6 +6,8 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.acrid.Constant.DB;
+import com.example.acrid.Model.BasePeople;
+import com.example.acrid.Model.Friend;
 import com.example.acrid.Model.People;
 import com.example.acrid.Model.User;
 
@@ -17,14 +19,19 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class UserRepo {
     //hàm này chưa xong
@@ -34,17 +41,109 @@ public class UserRepo {
         data.setValue(uidList);
         return data;
     };
+    public static MutableLiveData<List<Friend>> getFriendList(String userUID){
+        MutableLiveData<List<Friend>> data= new MutableLiveData<>();
+        mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                .document(userUID)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if(documentSnapshot.exists()){
+                        List<String> uidList = (List<String>) documentSnapshot.get(DB.USER_COLLECTION.FRIEND_UID_LIST.toString());
+                        if(uidList!=null&&!uidList.isEmpty()){
+                            getBasePeopleByUID(uidList,data, Friend.class);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    data.postValue(new ArrayList<>());
+                    Log.e("getFriendList: ", e.getMessage());
+                });
+        return data;
+    };
+    public static MutableLiveData<List<People>> getACPFriendList(String ownerUserUID)  {
+        MutableLiveData<List<People>> data= new MutableLiveData<>();
+        mFirestore.collection(DB.FRIEND_LIST_COLLECTION.NAME.toString())
+                .whereEqualTo(DB.FRIEND_LIST_COLLECTION.RECEIVER_ID.toString(),ownerUserUID)
+                .whereEqualTo(DB.FRIEND_LIST_COLLECTION.STATUS.toString(),DB.FRIEND_STATUS.PENDING.toString())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if(queryDocumentSnapshots.isEmpty()){
+                        data.postValue(new ArrayList<>());
+                        Log.e( "getACPFriendList: ","empty" );
+                        return;
+                    }
+                    List<String> uidList = new ArrayList<>();
+                    for(DocumentSnapshot doc: queryDocumentSnapshots ){
+                        String senderID = doc.getString(DB.FRIEND_LIST_COLLECTION.SENDER_ID.toString());
+                        if(senderID==null||senderID.isEmpty()){
+                            continue;
+                        }
+                        uidList.add(senderID);
+                    }
+                    getBasePeopleByUID(uidList,data,People.class);
+                })
+                .addOnFailureListener(e -> {
+                    data.postValue(new ArrayList<>());
+                    Log.e("getFriendList: ", Objects.requireNonNull(e.getMessage()));
+                });
+        return data;
+    }
+    ///lấy data của lớp thuộc lớp base people
+    private static <T extends BasePeople> void getBasePeopleByUID(List<String> UIDList, MutableLiveData<List<T>> data, Class<T> type){
+        List<T> friendList = new ArrayList<>();
+        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+        for (String uid : UIDList) {
+            Task<DocumentSnapshot> task = mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                    .document(uid)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        T friend = documentSnapshot.toObject(type);
+                        if (friend != null) friendList.add(friend);
+                    });
+            tasks.add(task);
+        }
+        Tasks.whenAllSuccess(tasks).addOnSuccessListener(result -> {
+            data.postValue(friendList);
+        });
+    }
     private static FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     private static FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     @Nullable
     public static String getCurrentUserUID() {
+        if(mAuth.getCurrentUser()==null)
+            return null;
         mAuth.getCurrentUser().getUid();
         if (mAuth.getCurrentUser() != null) {
             return mAuth.getCurrentUser().getUid();
         } else {
             return null;
         }
+    }
+    public static void acceptFriend(String senderUID ,String userUID, SimpleCallBack callBack){
+        WriteBatch batch = mFirestore.batch();
+        DocumentReference friendRequestRef = mFirestore.collection(DB.FRIEND_LIST_COLLECTION.NAME.toString())
+                .document(senderUID + "_" + userUID);
+
+        DocumentReference senderRef = mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                .document(senderUID);
+
+        DocumentReference receiverRef = mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                .document(userUID);
+
+        mFirestore.runTransaction(transaction -> {
+            // Cập nhật trạng thái lời mời thành "ACCEPTED"
+            transaction.update(friendRequestRef, DB.FRIEND_LIST_COLLECTION.STATUS.toString(), DB.FRIEND_STATUS.ACCEPTED.toString());
+
+            // Thêm UID vào danh sách bạn bè của cả sender và receiver
+            transaction.update(senderRef, DB.USER_COLLECTION.FRIEND_UID_LIST.toString(), FieldValue.arrayUnion(userUID));
+            transaction.update(receiverRef, DB.USER_COLLECTION.FRIEND_UID_LIST.toString(), FieldValue.arrayUnion(senderUID));
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            callBack.onSucess(null);
+        }).addOnFailureListener(e -> {
+            callBack.onError(e.getMessage());
+        });
     }
     public static MutableLiveData<String> getUserUID() {
         MutableLiveData<String> userUID = new MutableLiveData<>();
@@ -67,9 +166,25 @@ public class UserRepo {
                 });
         return user;
     }
-    public static MutableLiveData<List<People>> getPeopleByEmailorIDName(String emailorIDName) {
-        MutableLiveData<List<People>> peopleData = new MutableLiveData<>();
-        List<People> list= new ArrayList<>();
+    public static <T extends BasePeople> void getPeopleByUID(String UID,Class<T> type, PeopleCallBack<T> callBack){
+        mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                .document(UID)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    T person = documentSnapshot.toObject(type);
+                    callBack.call(person);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("getPeopleByUID: ", e.getMessage());
+                    callBack.call(null);
+                });
+    }
+    public interface PeopleCallBack<T extends BasePeople>{
+        void call(T person);
+    }
+    public static <T extends BasePeople> MutableLiveData<List<T>> getPeopleByEmailorIDName(String emailorIDName,Class<T> type) {
+        MutableLiveData<List<T>> peopleData = new MutableLiveData<>();
+        List<T> list= new ArrayList<>();
         if(emailorIDName.isEmpty()){
             peopleData.setValue(list);
             return peopleData;
@@ -97,8 +212,7 @@ public class UserRepo {
                         if(queryDocumentSnapshots instanceof QuerySnapshot){
                             QuerySnapshot querySnapshot = (QuerySnapshot) queryDocumentSnapshots;
                             for (DocumentSnapshot documentSnapshot : querySnapshot.getDocuments()) {
-                                People people = documentSnapshot.toObject(People.class);
-
+                                T people = documentSnapshot.toObject(type);
                                 if (people != null && !set.contains(people.getUserUID())&& !people.getUserUID().equals(UserRepo.getCurrentUserUID())){
                                     set.add(people.getUserUID());
                                     list.add(people);
@@ -158,6 +272,26 @@ public class UserRepo {
                 .collection(DB.FRIEND_LIST_COLLECTION.NAME.toString())
                 .document(friendUID)
                 .delete();
+    }
+
+    public static void saveToken(String userUID){
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if(!task.isSuccessful()){
+                        Log.e("saveToken: ", Objects.requireNonNull(task.getException().getMessage()));
+                        return;
+                    }
+                    String newToken = task.getResult();
+                    mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                            .document(userUID)
+                            .update(DB.USER_COLLECTION.TOKEN.toString(),newToken)
+                            .addOnSuccessListener(runnable -> {
+                                Log.e("saveToken: ", "SavedToken");
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e( "saveToken: ",e.getMessage() );
+                            });
+                });
     }
 
 }
