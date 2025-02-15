@@ -1,8 +1,14 @@
 package com.example.acrid.View.Activity;
 
 import android.app.Activity;
+import android.content.ComponentCallbacks2;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Trace;
+import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -11,21 +17,32 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
+import com.example.acrid.BuildConfig;
 import com.example.acrid.Helper.AuthRepo;
 import com.example.acrid.Helper.UserRepo;
 import com.example.acrid.R;
 import com.example.acrid.View.Fragment.LoginFragment;
 import com.example.acrid.databinding.ActivityMainBinding;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+
 
 public class MainActivity extends AppCompatActivity {
     private final Set<Integer> hiddenBottomBarFrag= new HashSet<>(Arrays.asList(
@@ -84,12 +101,21 @@ public class MainActivity extends AppCompatActivity {
                     binding.bottom.setSelectedItemId(R.id.setting);
                 }
             });
-
-            if(UserRepo.getCurrentUserUID()!=null)
+            String uid = UserRepo.getCurrentUserUID();
+            if(uid!=null)
             {
                 navController.navigate(R.id.homeFragment, null, new NavOptions.Builder()
                         .setPopUpTo(R.id.loginFragment, true)
                         .build());
+                Map<String, Object> map = new HashMap<>();
+                map.put("status", "online");
+                FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL).getReference("users").child(uid)
+                        .setValue(map)
+                        .addOnSuccessListener(aVoid -> Log.e("Firebaseccc", "User created successfully"))
+                        .addOnFailureListener(e -> Log.e("Firebaseccc", "Failed to create user: " + e.getMessage()));
+
+            }else {
+                Log.e("Firebaseccc", "none");
             }
 //            UserRepo.getUserUID().observe(this, userUID -> {
 //                if (userUID != null) {
@@ -104,5 +130,58 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    private Handler handler = new Handler();
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(UserRepo.getCurrentUserUID()!=null)
+        {
+            handler.postDelayed(this::seOffLine, 60000);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(UserRepo.getCurrentUserUID()!= null){
+            FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL).getReference("users").child(UserRepo.getCurrentUserUID()).child("status").setValue("online")
+                    .addOnSuccessListener(runnable -> {
+                        Log.e( "onResume:: ","ok" );
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e( "onResume:: ",e.getMessage() );
+                    });
+        }
+
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        seOffLine();
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        seOffLine();
+    }
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+            seOffLine();
+        }
+    }
+    private void seOffLine(){
+        if (UserRepo.getCurrentUserUID() != null) {
+            FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL)
+                    .getReference("users")
+                    .child(UserRepo.getCurrentUserUID())
+                    .child("status")
+                    .setValue("offline")
+                    .addOnSuccessListener(aVoid -> Log.e("onStop:: ", "User offline"))
+                    .addOnFailureListener(e -> Log.e("onStop:: ", e.getMessage()));
+        }
+
+    }
 }

@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "273955278707",
+    "firebase_url": "https://acridchat-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "acridchat",
     "storage_bucket": "acridchat.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.acrid"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "273955278707-pe5gughhrds6kuam9rg6lls6tum3rc2f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.acrid",
+            "certificate_hash": "5db2cb2a4003969f3afb56dfc034a3d6d09a9e7b"
+          }
+        },
+        {
+          "client_id": "273955278707-aidattm7jiuo4uin5utkfih6s8iugt90.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC9r89o-dhswjoeDDdqp6Lz7b9e4WJz9dA"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "273955278707-aidattm7jiuo4uin5utkfih6s8iugt90.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

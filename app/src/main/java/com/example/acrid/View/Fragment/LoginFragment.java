@@ -73,7 +73,7 @@ public class LoginFragment extends Fragment {
     private FragmentLoginBinding binding;
     private NavController navController;
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         // dùng data binding
@@ -108,6 +108,12 @@ public class LoginFragment extends Fragment {
         //ấn nút đăng nhập bằng email và password
         binding.btnLoginWEmailnPW.setOnClickListener(v -> {
             loginViewModel.loginWithEmailAndPW();
+        });
+        loginViewModel.email.observe(getViewLifecycleOwner(),string -> {
+            binding.boxEmailWrapper.setError(null);
+        });
+        loginViewModel.password.observe(getViewLifecycleOwner(),string -> {
+            binding.boxPasswordWrapper.setError(null);
         });
         loginViewModel.loginState.observe(getViewLifecycleOwner(), loginState -> {
             if(loginState instanceof LoginState.Loading){

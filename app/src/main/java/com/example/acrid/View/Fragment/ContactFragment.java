@@ -1,5 +1,6 @@
 package com.example.acrid.View.Fragment;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -24,6 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.example.acrid.Constant.Const;
@@ -33,6 +35,7 @@ import com.example.acrid.View.Dialog.PopupBuilder;
 import com.example.acrid.adapter.FriendAdapter;
 import com.example.acrid.databinding.FragmentContactBinding;
 import com.example.acrid.viewModel.ContactViewModel;
+import com.google.android.play.integrity.internal.f;
 
 import java.util.ArrayList;
 
@@ -93,6 +96,11 @@ public class ContactFragment extends Fragment {
         contactViewModel = new ViewModelProvider(this).get(ContactViewModel.class);
         binding.setViewmodel(contactViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
+        binding.scrollView.setOnTouchListener((view, motionEvent) -> {
+            hideKeyboard();
+            return true;
+        });
+
         // Inflate the layout for this fragment
         return binding.getRoot();
     }
@@ -179,5 +187,12 @@ public class ContactFragment extends Fragment {
         super.onPause();
         contactViewModel.selectedFriend.setValue(null);
         contactViewModel.conversationID.setValue("");
+    }
+    private void hideKeyboard() {
+        View view = requireActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 }

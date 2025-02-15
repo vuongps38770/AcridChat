@@ -1,5 +1,6 @@
 package com.example.acrid.View.Fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -10,15 +11,20 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.acrid.Constant.Const;
 import com.example.acrid.Model.Conversation;
 import com.example.acrid.R;
+import com.example.acrid.View.Dialog.PopupBuilder;
 import com.example.acrid.adapter.ConversationAdapter;
 import com.example.acrid.databinding.FragmentHomeBinding;
 import com.example.acrid.databinding.FragmentLoginBinding;
@@ -76,6 +82,7 @@ public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
     private HomeViewModel homeViewModel;
+    private NavController navController;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -85,6 +92,8 @@ public class HomeFragment extends Fragment {
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         binding.setViewModel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
+        navController = Navigation.findNavController(requireActivity(),R.id.nav_host_fragment);
+
         return binding.getRoot();
     }
 
@@ -94,10 +103,19 @@ public class HomeFragment extends Fragment {
         ConversationAdapter adapter = new ConversationAdapter(getContext(),new ArrayList<>());
         binding.recycler.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
         binding.recycler.setAdapter(adapter);
-        homeViewModel.conversationListData.observe(getViewLifecycleOwner(),conversations -> {
-            adapter.setData(conversations);
+        adapter.setOnConversationClickListener(conversation -> {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(Const.APP_FRIEND_BUNDLE_NAME,conversation.getPartner());
+            bundle.putString(Const.APP_CHAT_UID_BUNDLE_NAME,conversation.getDocumentId());
+            navController.navigate(R.id.action_homeFragment_to_chatFragment,bundle);
         });
-
+        adapter.setOnConversationLongClickListener((conversation, anchorView) -> {
+            new PopupBuilder(requireContext())
+                    .addItem("Xoá đoạn chat", Color.RED,view1 -> {})
+                    .addItem("Đánh dấu là đã đọc", view1 -> {})
+                    .build();
+        });
+        homeViewModel.conversationListData.observe(getViewLifecycleOwner(), adapter::setData);
     }
 
     @Override

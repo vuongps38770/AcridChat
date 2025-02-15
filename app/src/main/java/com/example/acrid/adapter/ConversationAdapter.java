@@ -1,6 +1,7 @@
 package com.example.acrid.adapter;
 
 import android.content.Context;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,6 +33,15 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         this.context = context;
         this.list = list;
     }
+
+    public void setOnConversationClickListener(OnConversationClickListener onConversationClickListener) {
+        this.onConversationClickListener = onConversationClickListener;
+    }
+
+    public void setOnConversationLongClickListener(OnConversationLongClickListener onConversationLongClickListener) {
+        this.onConversationLongClickListener = onConversationLongClickListener;
+    }
+
     public void setData(List<Conversation> list){
         this.list = list;
         notifyDataSetChanged();
@@ -58,12 +68,23 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         });
 
         holder.itemView.setOnLongClickListener(view -> {
-
             if(onConversationLongClickListener!=null) {
                 onConversationLongClickListener.onLongClicked(thisConversation,view);
             }
 
             return true;
+        });
+        holder.itemView.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    v.setAlpha(0.5f);
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    v.setAlpha(1.0f);
+                    break;
+            }
+            return false;
         });
     }
 

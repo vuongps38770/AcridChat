@@ -136,6 +136,67 @@ public enum DB {;
 
 
 
+
+
+    }
+    public enum MESSAGES_COLLECTION{
+        NAME{
+            @NonNull
+            @Override
+            public String toString() {
+                return "messages";
+            }
+        },
+        MESSAGE {
+            @NonNull
+            @Override
+            public String toString() {
+                return "message";
+            }
+        },
+        TYPE {
+            @NonNull
+            @Override
+            public String toString() {
+                return "type";
+            }
+        },
+        SENDER_ID {
+            @NonNull
+            @Override
+            public String toString() {
+                return "senderId";
+            }
+        },
+        STATUS {
+            @NonNull
+            @Override
+            public String toString() {
+                return "status";
+            }
+        },
+        TIMESTAMP {
+            @NonNull
+            @Override
+            public String toString() {
+                return "timestamp";
+            }
+        },
+        REPLIED_TO_MESSAGE_UID {
+            @NonNull
+            @Override
+            public String toString() {
+                return "repliedToMessageUID";
+            }
+        },
+        CHAT_UID{
+            @NonNull
+            @Override
+            public String toString() {
+                return "messageUID";
+            }
+        }
+
     }
 
 
@@ -162,5 +223,38 @@ public enum DB {;
                 return "none";
             }
         }
+    }
+
+    public enum CHAT_STATUS{
+        SENDING{
+            @NonNull
+            @Override
+            public String toString() {
+                return "sending";
+            }
+        },
+        SENT{
+            @NonNull
+            @Override
+            public String toString() {
+                return "sent";
+            }
+        },
+        FAILED{
+            @NonNull
+            @Override
+            public String toString() {
+                return "failed";
+            }
+        },
+        READ{
+            @NonNull
+            @Override
+            public String toString() {
+                return "read";
+            }
+        },
+
+
     }
 }

@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
@@ -17,8 +20,15 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 
+    }
+    val localProperties = Properties()
+    val localPropertiesFile = File(rootDir,"local.properties")
+    if(localPropertiesFile.isFile&&localPropertiesFile.exists()){
+        localPropertiesFile.inputStream().use {
+            localProperties.load(it)
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -27,10 +37,24 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug{
+            buildConfigField("String", "FIREBASE_SOCKET_URL",localProperties.getProperty("FIREBASE_SOCKET_URL"))
+        }
+
     }
+
+    packaging{
+        resources{
+            excludes.add("META-INF/INDEX.LIST")
+            excludes.add("META-INF/DEPENDENCIES")
+        }
+    }
+
     buildFeatures{
         viewBinding=true
         dataBinding=true
+        buildConfig=true
+        resValues=true
     }
     viewBinding {
         enable = true
@@ -57,6 +81,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.core.ktx)
     implementation(libs.firebase.messaging)
+    implementation(libs.work.runtime)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -69,5 +94,11 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.google.firebase:firebase-firestore")
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
+
+    // define any required OkHttp artifacts without version
+    implementation ("com.google.auth:google-auth-library-oauth2-http:1.17.0")
+
+
 
 }
