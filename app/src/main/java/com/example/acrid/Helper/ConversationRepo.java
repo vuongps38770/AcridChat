@@ -78,6 +78,7 @@ public class ConversationRepo {
                     }
                 );
     }
+
     public static MutableLiveData<List<Conversation>> getListConversation(String userUID) {
         MutableLiveData<List<Conversation>> data = new MutableLiveData<>();
 
@@ -137,7 +138,7 @@ public class ConversationRepo {
     private static String getFriendUID(List<String> participantIds, String userUID) {
         for (String id : participantIds) {
             if (!id.equals(userUID)) {
-                Log.d("getListConversationidpart", "Tìm thấy bạn chat: " + id);
+                Log.d("getListConversationIdPartner", "Tìm thấy bạn chat: " + id);
                 return id;
             }
         }

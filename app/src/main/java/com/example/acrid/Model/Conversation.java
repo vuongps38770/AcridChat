@@ -8,6 +8,18 @@ public class Conversation {
     private List<String> participantIds;
     private String lastMessage="";
     private Friend partner;
+    private long unreadCount;
+
+    public Conversation() {
+    }
+
+    public long getUnreadCount() {
+        return unreadCount;
+    }
+
+    public void setUnreadCount(long unreadCount) {
+        this.unreadCount = unreadCount;
+    }
 
     public Friend getPartner() {
         return partner;

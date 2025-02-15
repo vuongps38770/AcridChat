@@ -4,7 +4,30 @@ import java.io.Serializable;
 
 public class Friend extends BasePeople implements Serializable {
     private String userUID,displayName,IDName,email,profileIMG,birthDay,description;
+    private String token;
     long createdDate;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    private String status;
+
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Friend() {
+    }
 
     public String getUserUID() {
         return userUID;
