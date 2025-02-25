@@ -1,6 +1,7 @@
 package com.example.acrid.Model;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Friend extends BasePeople implements Serializable {
     private String userUID,displayName,IDName,email,profileIMG,birthDay,description;

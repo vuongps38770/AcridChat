@@ -1,6 +1,7 @@
 package com.example.acrid.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,20 +15,43 @@ import com.example.acrid.Model.Message;
 import com.example.acrid.R;
 import com.example.acrid.utils.TimeUtils;
 
+import org.apache.commons.logging.LogFactory;
+
 import java.util.List;
+import java.util.Map;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
     private static final int MSG_RIGHT = 1;
     private static final int MSG_LEFT = 0;
-
+    private static final org.apache.commons.logging.Log log = LogFactory.getLog(MessageAdapter.class);
+    private RecyclerView recyclerView;
     private Context context;
     private List<Message> messageList;
     private String currentUserId;
+    private String partnerUID;
+    private Map<String,Long> lastSeenMap;
 
-    public MessageAdapter(Context context, List<Message> messageList, String currentUserId) {
+    public void setLastSeenMap(Map<String, Long> lastSeenMap) {
+        this.lastSeenMap = lastSeenMap;
+        int oldLastSeenIndex = lastSeenIndex;
+        calculateLastSeenIndex();
+        if (oldLastSeenIndex != lastSeenIndex) {
+            notifyItemChanged(oldLastSeenIndex);
+            notifyItemChanged(lastSeenIndex);
+            if (lastSeenIndex == messageList.size() - 1) {
+                recyclerView.postDelayed(() -> {
+                    recyclerView.smoothScrollBy(0, 150);
+                }, 300);
+            }
+        }
+    }
+
+    public MessageAdapter(Context context, List<Message> messageList, String currentUserId,String partnerUID, RecyclerView recyclerView) {
         this.context = context;
         this.messageList = messageList;
         this.currentUserId = currentUserId;
+        this.partnerUID =partnerUID;
+        this.recyclerView= recyclerView;
     }
 
     @Override
@@ -56,11 +80,27 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         Message message = messageList.get(position);
         holder.tvMessage.setText(message.getMessage());
         String date = TimeUtils.getTimeAgo(message.getTimestamp());
+        Log.e("onBindViewHolder: ",message.getTimestamp()+"////"+date );
         if (position > 0 && TimeUtils.getTimeAgo(messageList.get(position - 1).getTimestamp()).equals(date)) {
+
             holder.time.setVisibility(View.GONE);
         } else {
             holder.time.setVisibility(View.VISIBLE);
             holder.time.setText(date);
+        }
+        if(lastSeenMap!=null&&getItemViewType(position)==MSG_RIGHT){
+            Log.e("onBindViewHolder: ","not null" );
+            holder.imgStatus.setVisibility(View.GONE);
+            if (position == lastSeenIndex) {
+                Log.e("onBindViewHolder: ","ok" );
+                holder.imgStatus.setImageResource(R.drawable.eye_svgrepo_com);
+                holder.imgStatus.setVisibility(View.VISIBLE);
+            }else {
+                holder.imgStatus.setVisibility(View.GONE);
+
+            }
+        }else {
+            Log.e("onBindViewHolder: ","null" );
         }
         // Hiển thị trạng thái tin nhắn
 //        if (holder.imgStatus != null) {
@@ -77,7 +117,24 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 //            }
 //        }
     }
+    private int lastSeenIndex = -1;
+    private void calculateLastSeenIndex() {
+        lastSeenIndex = -1;
+        if (lastSeenMap != null && lastSeenMap.containsKey(partnerUID)) {
+            long lastSeenTime = lastSeenMap.get(partnerUID);
+            Log.e("calculateLastSeenIndex: ",lastSeenTime+"" );
 
+            for (int i = messageList.size() - 1; i >= 0; i--) {
+                Message msg = messageList.get(i);
+                Log.e( "calculateLastSeenIndex: ", msg.getTimestamp()+"///"+msg.getMessage());
+                if (msg.getSenderId().equals(currentUserId) && msg.getTimestamp() <= lastSeenTime) {
+                    lastSeenIndex = i;
+                    Log.e("calculateLastSeenIndex:", "lastSeenIndex = " + lastSeenIndex+"///"+messageList.get(lastSeenIndex).getMessage());
+                    break;
+                }
+            }
+        }
+    }
     @Override
     public int getItemCount() {
         if(messageList!=null)
@@ -86,8 +143,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     public void setData(List<Message> messages) {
-        this.messageList = messages;
+
+        messageList.clear();
+        messageList.addAll(messages);
+        Log.e("setData: ",messageList.size()+"" );
         notifyDataSetChanged();
+        calculateLastSeenIndex();
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {

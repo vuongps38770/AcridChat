@@ -11,7 +11,10 @@
             type="com.example.acrid.viewModel.HomeViewModel" />
     </data>
 
+
+
     <FrameLayout
+        android:background="@color/bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".View.Fragment.HomeFragment">
@@ -19,6 +22,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:id="@+id/search"
+                android:hint="Tìm kiếm"
+                android:textSize="12dp"
+                android:background="@drawable/search_bar"
+                android:paddingVertical="15sp"
+                android:paddingHorizontal="10dp"
+                android:drawableEnd="@drawable/baseline_search_24"
+                android:drawableTint="@color/mainChild"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="20dp"
+                android:textColorHint="@color/mainChild"
+                android:focusable="false"/>
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

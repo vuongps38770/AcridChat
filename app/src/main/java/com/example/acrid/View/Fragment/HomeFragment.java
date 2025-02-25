@@ -116,6 +116,10 @@ public class HomeFragment extends Fragment {
                     .build();
         });
         homeViewModel.conversationListData.observe(getViewLifecycleOwner(), adapter::setData);
+
+        binding.search.setOnClickListener(view1 -> {
+            navController.navigate(R.id.action_homeFragment_to_findPeopleFragment);
+        });
     }
 
     @Override

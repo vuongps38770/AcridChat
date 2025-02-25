@@ -14,10 +14,27 @@
         tools:context=".View.Fragment.LoginFragment"
         >
         <LinearLayout
+            android:background="@color/bg"
+            android:paddingHorizontal="20dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context=".View.Activity.Login"
             android:orientation="vertical">
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginTop="40dp"
+                android:src="@drawable/binance"
+                android:layout_gravity="center_horizontal"/>
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="ACRID CHAT"
+                android:textSize="30sp"
+                android:textColor="@color/mainChild"
+                android:fontFamily="sans-serif-black"/>
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/boxEmailWrapper"
                 android:layout_width="match_parent"
@@ -25,12 +42,16 @@
                 app:helperTextEnabled="true"
                 app:helperText="Tài khoản email"
                 android:hint="abc@gmail.com"
+                android:layout_marginTop="30dp"
+                app:helperTextTextColor="@color/primary"
                 >
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:id="@+id/edtEmail"
-                   android:text="@={viewModel.email}"
+                    android:text="@={viewModel.email}"
+                    android:backgroundTint="@color/primary"
+                    android:background="@drawable/corner_tr_bl"
                     />
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
@@ -39,28 +60,40 @@
                 android:layout_height="wrap_content"
                 app:helperTextEnabled="true"
                 app:helperText="Tài khoản email"
-                android:hint="Mật khẩu">
+                android:hint="Mật khẩu"
+                app:helperTextTextColor="@color/primary"
+                app:endIconMode="password_toggle"
+                >
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:id="@+id/edtPassword"
                     android:text="@={viewModel.password}"
+                    android:backgroundTint="@color/primary"
+                    android:background="@drawable/corner_tr_bl"
+                    android:layout_marginTop="10dp"
                     />
             </com.google.android.material.textfield.TextInputLayout>
             <androidx.appcompat.widget.AppCompatButton
+                android:layout_marginTop="20dp"
+                android:background="@drawable/all_corner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/btnLoginWEmailnPW"
-                android:text="Đăng nhập"/>
+                android:text="Đăng nhập"
+                android:backgroundTint="@color/mainChild"/>
             <androidx.appcompat.widget.AppCompatButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Đăng nhập bằng Google"
-                android:id="@+id/BtnLoginWGG"/>
+                android:id="@+id/BtnLoginWGG"
+                android:visibility="gone"/>
             <TextView
+                android:layout_marginTop="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="đăng ký"
+                android:text="Đăng ký"
+                android:textColor="@color/mainChild"
                 android:id="@+id/txtSignUp"
                 />
             <TextView

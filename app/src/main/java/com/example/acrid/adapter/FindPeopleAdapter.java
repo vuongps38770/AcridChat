@@ -31,6 +31,7 @@ public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.Vi
 
     private Context context;
     private List<People> list;
+    private String userUID;
     private OnAddFriendClickedListener onAddFriendClickedListener;
 
     public OnAddFriendClickedListener getOnAddFriendClickedListener() {
@@ -41,9 +42,10 @@ public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.Vi
         this.onAddFriendClickedListener = onAddFriendClickedListener;
     }
 
-    public FindPeopleAdapter(Context context, List<People> list) {
+    public FindPeopleAdapter(Context context, List<People> list,String userUID) {
         this.context = context;
         this.list = list;
+        this.userUID=userUID;
     }
 
     @NonNull
@@ -62,23 +64,29 @@ public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.Vi
                 .error(R.drawable.img)
                 .into(holder.profileIMG);
         holder.status.setText(Optional.ofNullable(thisPeople.getDescription()).orElse("Không có mô tả"));
-        if(UserRepo.getFriendUIDList(UserRepo.getCurrentUserUID()).getValue().contains(thisPeople.getUserUID())){
-            holder.add.setVisibility(View.GONE);
-        }
+//        if(UserRepo.getFriendUIDList(UserRepo.getCurrentUserUID()).getValue().contains(thisPeople.getUserUID())){
+//            holder.add.setVisibility(View.GONE);
+//        }
         holder.name.setText(thisPeople.getIDName());
-        holder.add.setOnClickListener(view -> {
-            Log.e("click: ", "click");
-            if(onAddFriendClickedListener!=null){
-                Log.e("click: ", "click");
-                onAddFriendClickedListener.onClicked(thisPeople,holder.getAdapterPosition());
-            }else Log.e("click: ", "not");
-        });
+
+        holder.add.setVisibility(View.GONE);
         if(thisPeople.getFriendStatus().equals(DB.FRIEND_STATUS.PENDING.toString()) ){
+            holder.add.setVisibility(View.VISIBLE);
             holder.add.setText("Đã gửi lời mời");
             holder.add.setEnabled(false);
-        }else if (thisPeople.getFriendStatus().equals(DB.FRIEND_STATUS.ACCEPTED.toString()) ){
-            holder.add.setVisibility(View.GONE);
+        }else if (thisPeople.getFriend_uid_list().contains(userUID) ){
+            holder.add.setVisibility(View.VISIBLE);
+            holder.add.setText("Bạn bè");
+            holder.add.setEnabled(false);
+        }else {
+            holder.add.setVisibility(View.VISIBLE);
+            holder.add.setOnClickListener(view -> {
+                if(onAddFriendClickedListener!=null){
+                    onAddFriendClickedListener.onClicked(thisPeople,holder.getAdapterPosition());
+                }else Log.e("click: ", "not");
+            });
         }
+
     }
 
     @Override

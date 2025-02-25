@@ -15,7 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
-import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,10 +26,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.acrid.Constant.Const;
-import com.example.acrid.Helper.ChatRepo;
 import com.example.acrid.Helper.UserRepo;
 import com.example.acrid.Model.Friend;
-import com.example.acrid.Model.Message;
 import com.example.acrid.R;
 import com.example.acrid.adapter.MessageAdapter;
 import com.example.acrid.databinding.FragmentChatBinding;
@@ -118,13 +117,7 @@ public class ChatFragment extends Fragment {
 
 
 
-        MessageAdapter adapter = new MessageAdapter(requireContext(),new ArrayList<>(),UserRepo.getCurrentUserUID());
-        LinearLayoutManager manager =new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false);
-        manager.setStackFromEnd(true);
-        binding.recycler.setLayoutManager(manager);
-        binding.recycler.setAdapter(adapter);
-        binding.recycler.setVerticalScrollBarEnabled(true);
-        binding.recycler.setScrollbarFadingEnabled(false);
+
 
 
 
@@ -146,37 +139,84 @@ public class ChatFragment extends Fragment {
             }
         });
 
+
+        MessageAdapter adapter = new MessageAdapter(requireContext(),new ArrayList<>(),UserRepo.getCurrentUserUID(),friend.getUserUID(), binding.recycler);
+
+        LinearLayoutManager manager =new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false);
+        manager.setStackFromEnd(true);
+        binding.recycler.setLayoutManager(manager);
+        binding.recycler.setAdapter(adapter);
+        binding.recycler.setVerticalScrollBarEnabled(true);
+        binding.recycler.setScrollbarFadingEnabled(false);
+
+
+        chatViewModel.lastSeenMap.observe(getViewLifecycleOwner(), adapter::setLastSeenMap);
+        chatViewModel.isPartnerTyping.observe(getViewLifecycleOwner(),isTyping -> {
+            binding.typingStatus.setVisibility(isTyping?View.VISIBLE:View.GONE);
+        });
+
         chatViewModel.chatData.observe(getViewLifecycleOwner(), messages -> {
-            for (Message m :messages){
-                Log.e("onViewCreated: ",m.getTimestamp()+"" );
-            }
+            Log.e("onViewCreated: ", messages.size()+"");
+            int oldSize = adapter.getItemCount();
             adapter.setData(messages);
-            if (!messages.isEmpty()) {
-                LinearLayoutManager layoutManager = (LinearLayoutManager) binding.recycler.getLayoutManager();
-                if (layoutManager != null) {
-                    int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                    int totalItems = messages.size();
-                    if (lastVisibleItem >= totalItems - 3&&messages.size()>1) {
-                        binding.recycler.smoothScrollToPosition(messages.size() );
-                    }
+
+            LinearLayoutManager layoutManager = (LinearLayoutManager) binding.recycler.getLayoutManager();
+            if (layoutManager != null) {
+                int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                int totalItems = messages.size();
+
+                // Trường hợp load tin nhắn cũ -> Giữ nguyên vị trí
+                if (messages.size() > oldSize) {
+                    int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
+                    View firstVisibleView = layoutManager.findViewByPosition(firstVisiblePosition);
+                    int offset = (firstVisibleView == null) ? 0 : firstVisibleView.getTop();
+
+                    binding.recycler.post(() -> {
+                        layoutManager.scrollToPositionWithOffset(firstVisiblePosition + (messages.size() - oldSize), offset);
+                    });
+
+                }
+                // Trường hợp có tin nhắn mới -> Cuộn xuống nếu đang ở gần cuối
+                if (lastVisibleItem >= totalItems - 3 && messages.size() > 0) {
+                    binding.recycler.postDelayed(() ->
+                            binding.recycler.smoothScrollToPosition(messages.size() - 1), 100);
                 }
             }
         });
+
 
         binding.btnSendMessage.setOnClickListener(view1 -> {
             chatViewModel.sendMessage(friend.getToken());
         });
 
+        binding.edtMessage.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.e("onTextChanged: ", charSequence.toString());
+                chatViewModel.setIsUserTyping(true);
+                typingHandler.removeCallbacks(typingRunnable);
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+                typingRunnable = () -> chatViewModel.setIsUserTyping(false);
+                typingHandler.postDelayed(typingRunnable, 1000);
+            }
+        });
         binding.recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
+                if(adapter.getItemCount()<20) return;
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (layoutManager == null) return;
-
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-                if (firstVisibleItemPosition <= 5) {
+                if (firstVisibleItemPosition <= 3) {
+                    Toast.makeText(requireContext(), "loadding", Toast.LENGTH_SHORT).show();
                     chatViewModel.loadOlderMessages();
                 }
             }
@@ -201,5 +241,20 @@ public class ChatFragment extends Fragment {
             InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+    private Handler typingHandler = new Handler();
+    private Runnable typingRunnable;
+    @Override
+    public void onPause() {
+        super.onPause();
+        chatViewModel.isChatScreenActive.postValue(false);
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        chatViewModel.isChatScreenActive.postValue(true);
+
     }
 }

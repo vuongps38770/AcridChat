@@ -3,6 +3,9 @@
     <style name="Base.Theme.Acrid" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/mainChild</item>
+
+        <item name="colorControlActivated">@color/mainChild</item>
     </style>
 
     <style name="Theme.Acrid" parent="Base.Theme.Acrid" />
@@ -10,5 +13,15 @@
         <item name="colorPrimary">#BB86FC</item>
         <item name="colorPrimaryVariant">#3700B3</item>
         <item name="colorOnPrimary">#000000</item>
+    </style>
+
+
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <!-- Đổi màu hint text -->
+        <item name="android:textColorHint">#FFFFFF</item>
+        <!-- Đổi màu chữ nhập vào -->
+        <item name="android:textColor">#FFFFFF</item>
+        <!-- Đổi màu gạch chân dưới input -->
+        <item name="android:background">?attr/colorPrimary</item>
     </style>
 </resources>

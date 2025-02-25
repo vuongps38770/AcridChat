@@ -2,6 +2,7 @@ package com.example.acrid.View.Fragment;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -9,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -26,6 +28,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.acrid.Constant.Const;
@@ -150,6 +154,7 @@ public class ContactFragment extends Fragment {
         ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
         toolbar.setTitle("Tìm kiếm bạn bè");
 
+
         /// setup search
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
@@ -158,6 +163,21 @@ public class ContactFragment extends Fragment {
                 MenuItem searchItem = menu.findItem(R.id.action_search);
                 SearchView searchView = (SearchView) searchItem.getActionView();
                 searchView.setQueryHint("Nhập tên bạn bè");
+                EditText editText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+                editText.setHintTextColor(ContextCompat.getColor(requireContext(),R.color.mainChild));
+                editText.setTextColor(Color.WHITE);
+                ImageView backIcon = searchView.findViewById(androidx.appcompat.R.id.search_go_btn);
+                if (backIcon != null) {
+                    backIcon.setColorFilter(ContextCompat.getColor(requireContext(),R.color.mainChild), PorterDuff.Mode.SRC_IN);
+                }
+                ImageView backIcon2 = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
+                if (backIcon2 != null) {
+                    backIcon2.setColorFilter(ContextCompat.getColor(requireContext(),R.color.mainChild), PorterDuff.Mode.SRC_ATOP);
+                }
+               if (toolbar.getNavigationIcon() != null) {
+                   toolbar.getNavigationIcon().setColorFilter(ContextCompat.getColor(requireContext(),R.color.mainChild), PorterDuff.Mode.SRC_IN);
+
+               }
                 ///tìm kiếm
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override

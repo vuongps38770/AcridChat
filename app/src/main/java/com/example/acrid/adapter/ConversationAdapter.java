@@ -14,9 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.acrid.Helper.UserRepo;
 import com.example.acrid.Model.Conversation;
 import com.example.acrid.Model.Friend;
+import com.example.acrid.Model.Message;
 import com.example.acrid.R;
+import com.example.acrid.utils.TimeUtils;
 
 import org.checkerframework.checker.units.qual.C;
 
@@ -26,6 +29,7 @@ import java.util.Optional;
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder>{
 
     private Context context;
+    private String userUID=UserRepo.getCurrentUserUID();
     private OnConversationClickListener onConversationClickListener;
     private OnConversationLongClickListener onConversationLongClickListener;
 
@@ -56,6 +60,11 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Conversation thisConversation = list.get(position);
+        Message lastMessage = thisConversation.getLastMessage();
+        if(lastMessage!=null){
+            holder.lastMSG.setText(lastMessage.getMessage());
+            holder.lastTime.setText(TimeUtils.getTimeAgo(thisConversation.getLastUpdatedAt()));
+        }
         Glide.with(holder.profileIMG)
                 .load(thisConversation.getPartner().getProfileIMG())
                 .placeholder(R.drawable.load)
@@ -66,6 +75,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             if(onConversationClickListener==null) return;
             onConversationClickListener.onClicked(thisConversation);
         });
+        if(thisConversation.getReadList()!=null&&!thisConversation.getReadList().contains(userUID)){
+            holder.mark.setVisibility(View.VISIBLE);
+        }else holder.mark.setVisibility(View.GONE);
 
         holder.itemView.setOnLongClickListener(view -> {
             if(onConversationLongClickListener!=null) {
@@ -96,7 +108,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 
-        ImageView profileIMG;
+        ImageView profileIMG,mark;
         TextView name;
         TextView lastMSG;
         TextView lastTime;
@@ -107,6 +119,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             name = itemView.findViewById(R.id.txtName);
             lastMSG = itemView.findViewById(R.id.txtLastMSG);
             lastTime = itemView.findViewById(R.id.lastTime);
+            mark = itemView.findViewById(R.id.mark);
+
         }
 
     }

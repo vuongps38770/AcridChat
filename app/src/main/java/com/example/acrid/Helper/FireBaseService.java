@@ -1,6 +1,7 @@
 package com.example.acrid.Helper;
 
 import android.Manifest;
+import android.app.Notification;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
@@ -51,6 +52,7 @@ public class FireBaseService extends FirebaseMessagingService {
     private static final String FCM_URL = "https://fcm.googleapis.com/v1/projects/273955278707/messages:send";
     private static final String SERVICE_ACCOUNT_JSON_PATH = "D:\\FPTPolytechnic\\DuAnTotNghiep\\key\\key.json"; // Đường dẫn file JSON
     private static final String TAG = "MyFirebaseMsgService";
+    public static final String CHANNEL_ID = "AcridChannel";
 
     // [START receive_message]
     @Override
@@ -76,10 +78,32 @@ public class FireBaseService extends FirebaseMessagingService {
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            showNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody());
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
+    }
+    private void showNotification(String title, String message) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID, "Acrid Notifications",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setSmallIcon(R.drawable.img)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .build();
+
+        notificationManager.notify(0, notification);
     }
     // [END receive_message]
 
@@ -118,6 +142,7 @@ public class FireBaseService extends FirebaseMessagingService {
 
     private void sendRegistrationToServer(String token) {
         // TODO: Implement this method to send token to your app server.
+        UserRepo.saveToken(UserRepo.getCurrentUserUID());
     }
 
     private void sendNotification(String messageBody) {
@@ -164,55 +189,7 @@ public class FireBaseService extends FirebaseMessagingService {
             return Result.success();
         }
     }
-    public static void sendMessage(String token, String title, String message) {
-        try {
-            // Load Service Account JSON (từ file key.json)
-            GoogleCredentials credentials = GoogleCredentials
-                    .fromStream(new FileInputStream(SERVICE_ACCOUNT_JSON_PATH))
-                    .createScoped(Collections.singletonList("https://www.googleapis.com/auth/cloud-platform"));
 
-            credentials.refreshIfExpired(); // Làm mới token nếu hết hạn
-            String accessToken = credentials.getAccessToken().getTokenValue(); // Lấy token OAuth2.0
-
-            // URL API của FCM v1
-            URL url = new URL(FCM_URL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            // Cấu hình phương thức POST
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", "Bearer " + accessToken); // Dùng Bearer Token
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
-
-            // Xây dựng JSON payload
-            JSONObject json = new JSONObject();
-            json.put("message", new JSONObject()
-                    .put("token", token)
-                    .put("notification", new JSONObject()
-                            .put("title", title)
-                            .put("body", message)
-                    )
-            );
-
-            // Gửi dữ liệu
-            OutputStream os = conn.getOutputStream();
-            os.write(json.toString().getBytes("UTF-8"));
-            os.close();
-
-            // Đọc phản hồi từ server
-            Scanner scanner = new Scanner(conn.getInputStream());
-            StringBuilder response = new StringBuilder();
-            while (scanner.hasNext()) {
-                response.append(scanner.nextLine());
-            }
-            scanner.close();
-
-            Log.d(TAG, "FCM Response: " + response.toString());
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error sending FCM message", e);
-        }
-    }
 
 
 

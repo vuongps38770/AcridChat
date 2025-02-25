@@ -38,7 +38,6 @@ public class SignUpViewModel extends ViewModel {
         Log.e("signUp: ",email.getValue()+"/"+password.getValue()+"/"+nickName.getValue() );
 
         List<SignUpErorr> errors = new ArrayList<>();
-
         if(email.getValue().isEmpty()){
             errors.add(SignUpErorr.EMAIL_EMPTY);
         }
@@ -55,7 +54,10 @@ public class SignUpViewModel extends ViewModel {
             errors.add(SignUpErorr.PASSWORD_NOT_MATCH);
         }
         if(!errors.isEmpty()){
-            signUpState.setValue(new SignUpState.Error(errors));
+            signUpState.postValue(new SignUpState.Error(errors));
+            Log.e("DEBUG", "Lỗi: " + errors.toString());
+            Log.e("DEBUG", "Email hiện tại: " + email.getValue());
+            Log.e("DEBUG", "RePassword hiện tại: " + rePassword.getValue());
             return;
         }
         Log.e("signUp: ",email.getValue()+"/"+password.getValue()+"/"+nickName.getValue() );

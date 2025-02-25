@@ -4,9 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User extends BasePeople{
-    private String userUID,displayName,IDName,email,profileIMG,birthDay,token;
+    private String userUID="",displayName="",IDName="",email="",profileIMG="",birthDay="",token="", description="";
     long createdDate;
     private List<String> friend_uid_list = new ArrayList<>();
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public String getUserUID() {
         return userUID;

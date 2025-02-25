@@ -2,11 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="60dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:paddingHorizontal="5dp"
     android:layout_marginTop="10dp"
-    >
+    android:background="@drawable/giadien_gray_color">
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -21,6 +22,7 @@
         android:layout_weight="1"
         android:orientation="vertical">
         <TextView
+            android:textColor="@color/white"
             android:layout_marginStart="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -39,7 +41,9 @@
         android:layout_width="40dp"
         android:layout_height="20dp"
         android:id="@+id/seeMore"
-        android:src="@drawable/three_dots"/>
+        android:src="@drawable/three_dots"
+        app:tint="@color/mainChild"
+        />
 
 
 </LinearLayout>
