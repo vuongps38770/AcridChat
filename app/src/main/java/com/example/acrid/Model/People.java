@@ -1,10 +1,21 @@
 package com.example.acrid.Model;
 
+import java.util.List;
+
 public class People extends BasePeople{
     private String userUID,displayName,IDName,email,profileIMG,birthDay,description;
     private long createdDate;
     private String status;
     private String friendStatus = "";
+    private List<String> friend_uid_list;
+
+    public List<String> getFriend_uid_list() {
+        return friend_uid_list;
+    }
+
+    public void setFriend_uid_list(List<String> friend_uid_list) {
+        this.friend_uid_list = friend_uid_list;
+    }
 
     public String getFriendStatus() {
         return friendStatus;

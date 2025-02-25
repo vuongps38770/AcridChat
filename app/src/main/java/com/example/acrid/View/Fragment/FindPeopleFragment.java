@@ -7,6 +7,8 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.util.Log;
@@ -17,6 +19,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.example.acrid.Constant.DB;
+import com.example.acrid.Helper.UserRepo;
 import com.example.acrid.Model.People;
 import com.example.acrid.R;
 import com.example.acrid.State.SimpleCallBack;
@@ -76,6 +79,7 @@ public class FindPeopleFragment extends Fragment {
     FindPeopleViewModel findPeopleViewModel;
     FragmentFindPeopleBinding binding;
     FindPeopleAdapter adapter;
+    NavController navController;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -85,7 +89,7 @@ public class FindPeopleFragment extends Fragment {
         findPeopleViewModel = new ViewModelProvider(this).get(FindPeopleViewModel.class);
         binding.setViewModel(findPeopleViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
-
+        navController= Navigation.findNavController(requireActivity(),R.id.nav_host_fragment);
         return binding.getRoot();
     }
 
@@ -93,10 +97,14 @@ public class FindPeopleFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         /// setup adapter
-        adapter = new FindPeopleAdapter(getContext(), new ArrayList<>());
+        adapter = new FindPeopleAdapter(getContext(), new ArrayList<>(), UserRepo.getCurrentUserUID());
         binding.recycler.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recycler.setAdapter(adapter);
 
+        binding.searchbar.requestFocus();
+        binding.btnBack.setOnClickListener(view1 -> {
+            navController.popBackStack();
+        });
         //add friend pos là cập nhật vị trí hiên tại
         adapter.setOnAddFriendClickedListener((people,pos) -> {
             Log.e("onViewCreated: ", pos+"");
@@ -128,7 +136,6 @@ public class FindPeopleFragment extends Fragment {
                 findPeopleViewModel.search.setValue(s);
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String s) {
                 findPeopleViewModel.search.setValue(s);

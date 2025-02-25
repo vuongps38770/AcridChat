@@ -1,5 +1,6 @@
 package com.example.acrid.Helper;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -153,12 +154,18 @@ public class AuthRepo {
                     }
                     loginState.setValue(new LoginState.Error(new ArrayList<>(errors)));
                 });
+
     }
     public static void loginWithGoogleAccount(){
 
     }
     public static void logout() {
-        mAuth.signOut();
+        if(mAuth.getCurrentUser()!=null)
+        {
+            UserRepo.clearToken(mAuth.getCurrentUser().getUid());
+            mAuth.signOut();
+
+        }
     }
 
     public static void resetPassword(String email) {

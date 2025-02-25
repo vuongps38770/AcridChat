@@ -15,6 +15,8 @@
         tools:context=".View.Fragment.ChatFragment"
         >
 
+
+
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -39,7 +41,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
-                    android:background="@color/primary"
+                    android:background="@color/bg"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingHorizontal="10dp"
@@ -50,7 +52,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/baseline_arrow_back_ios_24"
-                        app:tint="@color/white" />
+                        app:tint="@color/mainChild" />
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/avt"
@@ -67,14 +69,17 @@
                         android:orientation="vertical">
 
                         <TextView
+
                             android:id="@+id/name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Name"
+                            android:textColor="@color/mainChild"
                             android:textSize="20sp" />
 
                         <TextView
                             android:id="@+id/status"
+                            android:textColor="@color/gray"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="status" />
@@ -85,17 +90,19 @@
                         android:id="@+id/seeMore"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/three_dots" />
+                        android:src="@drawable/three_dots"
+                        app:tint="@color/mainChild"/>
                 </LinearLayout>
 
                     <androidx.recyclerview.widget.RecyclerView
+                        android:background="@color/primary"
                         android:scrollIndicators="right"
                         android:id="@+id/recycler"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scrollbars="vertical"
                         android:fadeScrollbars="false"
-
+                        android:clipToPadding="false"
                         />
 
             </LinearLayout>
@@ -105,15 +112,16 @@
                 android:id="@+id/chatArea"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="@color/bg"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/linearLayout"
                 android:orientation="horizontal">
 
                 <EditText
+                    android:textColor="@color/white"
                     android:id="@+id/edtMessage"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="45dp"
                     android:layout_weight="1"
                     android:padding="10dp"
                     android:gravity="top"
@@ -122,7 +130,10 @@
                     android:minLines="1"
                     android:scrollbars="vertical"
                     android:overScrollMode="always"
-                    android:text="@={viewModel.message}"/>
+                    android:text="@={viewModel.message}"
+
+                    android:backgroundTint="@color/mainChild"
+                    />
                 <ImageButton
                     android:id="@+id/btnSendMessage"
                     android:layout_width="40dp"
@@ -132,11 +143,23 @@
                     android:layout_marginBottom="5dp"
                     android:scaleType="centerInside"
                     android:background="@drawable/transparent"
+                    app:tint="@color/mainChild"
                     />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
+        <TextView
+            android:id="@+id/typingStatus"
+            android:layout_width="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:layout_height="20dp"
+            android:backgroundTint="@color/bg"
+            android:layout_gravity="bottom|left"
+            android:layout_marginBottom="45dp"
+            android:text="Đang nhập..."
+            android:textColor="@color/mainChild"
+            android:background="@drawable/top_right_radius"
+            android:visibility="gone"/>
     </FrameLayout>
 </layout>

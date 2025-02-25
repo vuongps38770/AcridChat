@@ -1,14 +1,34 @@
 package com.example.acrid.Model;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Conversation {
     private String documentId="";
     private long lastUpdatedAt;
     private List<String> participantIds;
-    private String lastMessage="";
+    private Message lastMessage;
     private Friend partner;
     private long unreadCount;
+    private Map<String,Long> lastSeen;
+    private ArrayList<String> readList;
+
+    public ArrayList<String> getReadList() {
+        return readList;
+    }
+
+    public void setReadList(ArrayList<String> readList) {
+        this.readList = readList;
+    }
+
+    public Map<String, Long> getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(Map<String, Long> lastSeen) {
+        this.lastSeen = lastSeen;
+    }
 
     public Conversation() {
     }
@@ -53,11 +73,11 @@ public class Conversation {
         this.participantIds = participantIds;
     }
 
-    public String getLastMessage() {
+    public Message getLastMessage() {
         return lastMessage;
     }
 
-    public void setLastMessage(String lastMessage) {
+    public void setLastMessage(Message lastMessage) {
         this.lastMessage = lastMessage;
     }
 }

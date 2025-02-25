@@ -128,6 +128,20 @@ public enum DB {;
             public String toString() {
                 return "documentId";
             }
+        },
+        LAST_SEEN{
+            @NonNull
+            @Override
+            public String toString() {
+                return "lastSeen";
+            }
+        },
+        READ_LIST{
+            @NonNull
+            @Override
+            public String toString() {
+                return "readList";
+            }
         }
 
 

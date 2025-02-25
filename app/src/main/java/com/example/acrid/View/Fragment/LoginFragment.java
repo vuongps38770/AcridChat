@@ -1,7 +1,14 @@
 package com.example.acrid.View.Fragment;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
@@ -11,6 +18,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +29,16 @@ import com.example.acrid.State.LoginError;
 import com.example.acrid.State.LoginState;
 import com.example.acrid.databinding.FragmentLoginBinding;
 import com.example.acrid.viewModel.LoginViewModel;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +59,10 @@ public class LoginFragment extends Fragment {
     public LoginFragment() {
         // Required empty public constructor
     }
+    private FirebaseAuth mAuth;
+    private GoogleSignInClient googleSignInClient;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
+
 
     /**
      * Use this factory method to create a new instance of
@@ -72,9 +94,11 @@ public class LoginFragment extends Fragment {
     private LoginViewModel loginViewModel;
     private FragmentLoginBinding binding;
     private NavController navController;
+    private SharedPreferences sharedPreferences;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         // dùng data binding
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false);
@@ -90,6 +114,18 @@ public class LoginFragment extends Fragment {
 
         //khai báo navController
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+
+        ///ktra sharedPreferences
+        sharedPreferences = requireContext().getSharedPreferences("Login", Context.MODE_PRIVATE);
+        if(sharedPreferences!=null){
+            boolean isauth = sharedPreferences.getBoolean("isAuthed",false);
+            if(isauth){
+                navController.navigate(R.id.homeFragment, null, new NavOptions.Builder()
+                        .setPopUpTo(R.id.loginFragment, true)
+                        .build());
+            }
+        }
+
 
         //cho getroot trả về view (cái này quan trọng)
         return binding.getRoot();
@@ -109,17 +145,16 @@ public class LoginFragment extends Fragment {
         binding.btnLoginWEmailnPW.setOnClickListener(v -> {
             loginViewModel.loginWithEmailAndPW();
         });
-        loginViewModel.email.observe(getViewLifecycleOwner(),string -> {
-            binding.boxEmailWrapper.setError(null);
-        });
-        loginViewModel.password.observe(getViewLifecycleOwner(),string -> {
-            binding.boxPasswordWrapper.setError(null);
-        });
+
         loginViewModel.loginState.observe(getViewLifecycleOwner(), loginState -> {
             if(loginState instanceof LoginState.Loading){
                 Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show();
             }
             if(loginState instanceof LoginState.Success){
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("isAuthed",true);
+                editor.apply();
                 navController.navigate(R.id.action_loginFragment_to_homeFragment);
             }
             if(loginState instanceof LoginState.Error){
@@ -141,7 +176,58 @@ public class LoginFragment extends Fragment {
                 };
             }
         });
+//        AnimationDrawable animation = (AnimationDrawable) binding.title.getTextColors();
+//        animation.start();
+//        mAuth = FirebaseAuth.getInstance();
+//
+//        // Cấu hình đăng nhập Google
+//        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                .requestIdToken(getString(R.string.default_web_client_id))  // Thay thế bằng Web Client ID từ Firebase
+//                .requestEmail()
+//                .build();
+
+//        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
+//
+//        googleSignInLauncher = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    if (result.getResultCode() == Activity.RESULT_OK) {
+//                        Intent data = result.getData();
+//                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+//                        try {
+//                            GoogleSignInAccount account = task.getResult(ApiException.class);
+//                            firebaseAuthWithGoogle(account.getIdToken());
+//                        } catch (ApiException e) {
+//                            Log.e("GoogleSignIn", "Google sign-in failed", e);
+//                        }
+//                    }
+//                });
+//        binding.BtnLoginWGG.setOnClickListener(view1 -> {
+//            signInWithGoogle();
+//        });
 
     }
+    private void signInWithGoogle() {
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        googleSignInLauncher.launch(signInIntent);
+    }
+
+//    private void firebaseAuthWithGoogle(String idToken) {
+//        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+//        mAuth.signInWithCredential(credential)
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        FirebaseUser user = mAuth.getCurrentUser();
+//                        Log.d("FirebaseAuth", "Đăng nhập thành công: " + user.getEmail());
+//                        Toast.makeText(requireContext(), "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+//
+//                    } else {
+//                        Log.e("FirebaseAuth", "Đăng nhập thất bại", task.getException());
+//                    }
+//                });
+//    }
+
+
+
 
 }

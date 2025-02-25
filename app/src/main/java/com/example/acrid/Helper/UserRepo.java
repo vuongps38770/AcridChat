@@ -151,20 +151,23 @@ public class UserRepo {
         userUID.setValue(currentUser != null ? currentUser.getUid() : null);
         return userUID;
     }
-    public static MutableLiveData<List<User>> getUser() {
-        MutableLiveData<List<User>> user = new MutableLiveData<>();
+
+
+    public static MutableLiveData<User> getUserByUID(String userUID) {
+        MutableLiveData<User> data = new MutableLiveData<>();
         mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                .document(userUID)
                 .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<User> users = new ArrayList<>();
-                        for (int i = 0; i < task.getResult().size(); i++) {
-                            users.add(task.getResult().toObjects(User.class).get(i));
-                        }
-                        user.setValue(users);
-                    }
+                .addOnSuccessListener(documentSnapshot -> {
+                    User user = (User) documentSnapshot.toObject(User.class);
+                    if(user!=null) data.postValue(user);
+                    else data.postValue(null);
+                })
+                .addOnFailureListener(e -> {
+                    data.postValue(null);
                 });
-        return user;
+
+        return data;
     }
     public static <T extends BasePeople> void getPeopleByUID(String UID,Class<T> type, PeopleCallBack<T> callBack){
         mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
@@ -292,6 +295,18 @@ public class UserRepo {
                                 Log.e( "saveToken: ",e.getMessage() );
                             });
                 });
+    }
+    public static void clearToken(String userUID){
+        mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                .document(userUID)
+                .update(DB.USER_COLLECTION.TOKEN.toString(),"")
+                .addOnSuccessListener(runnable -> {
+                    Log.e("saveToken: ", "SavedToken");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e( "saveToken: ",e.getMessage() );
+                });
+
     }
 
 }

@@ -67,7 +67,7 @@ public class ConversationRepo {
         data.put(DB.CONVERSATIONS_COLLECTION.DOCUMMENT_ID.toString(),newID);
         data.put(DB.CONVERSATIONS_COLLECTION.INITIATED_AT.toString(),System.currentTimeMillis());
         data.put(DB.CONVERSATIONS_COLLECTION.INITIATEDBY.toString(),user1ID);
-        data.put(DB.CONVERSATIONS_COLLECTION.LAST_MESSAGE.toString(),null);
+        data.put(DB.CONVERSATIONS_COLLECTION.LAST_MESSAGE.toString(),new HashMap<>());
         data.put(DB.CONVERSATIONS_COLLECTION.LAST_UPDATED_AT.toString(),System.currentTimeMillis());
         data.put(DB.CONVERSATIONS_COLLECTION.PARTICIPANT_IDS.toString(),ids);
         conversationsRef.document(newID).set(data)
@@ -116,7 +116,7 @@ public class ConversationRepo {
                             continue;
                         }
 
-                        list.add(conversation); // Lưu vào danh sách ngay lập tức
+                        list.add(conversation);
 
                         UserRepo.getPeopleByUID(friendUID, Friend.class, friend -> {
                             if (friend != null) {

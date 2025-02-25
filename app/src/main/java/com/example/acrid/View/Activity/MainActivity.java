@@ -3,9 +3,12 @@ package com.example.acrid.View.Activity;
 import android.app.Activity;
 import android.content.ComponentCallbacks2;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Trace;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -29,6 +32,7 @@ import com.example.acrid.Helper.UserRepo;
 import com.example.acrid.R;
 import com.example.acrid.View.Fragment.LoginFragment;
 import com.example.acrid.databinding.ActivityMainBinding;
+import com.example.acrid.services.ChatHeadService;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -45,12 +49,14 @@ import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity {
+    DatabaseReference userRef;
     private final Set<Integer> hiddenBottomBarFrag= new HashSet<>(Arrays.asList(
             R.id.signUpFragment,
             R.id.loginFragment,
             R.id.chatFragment,
             R.id.findPeopleFragment
     ));
+    private String userUID;
     ActivityMainBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +69,16 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        userUID =UserRepo.getCurrentUserUID();
+        ////init trang thái online
+        if(userUID!=null&&!userUID.isEmpty()){
+            userRef= FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL).getReference("users").child(userUID).child("status");
+            userRef.onDisconnect().setValue("offline");
+        }
+
+
+
         binding.getRoot().post(()->{
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
             binding.bottom.setOnItemSelectedListener(item -> {
@@ -104,9 +120,9 @@ public class MainActivity extends AppCompatActivity {
             String uid = UserRepo.getCurrentUserUID();
             if(uid!=null)
             {
-                navController.navigate(R.id.homeFragment, null, new NavOptions.Builder()
-                        .setPopUpTo(R.id.loginFragment, true)
-                        .build());
+//                navController.navigate(R.id.homeFragment, null, new NavOptions.Builder()
+//                        .setPopUpTo(R.id.loginFragment, true)
+//                        .build());
                 Map<String, Object> map = new HashMap<>();
                 map.put("status", "online");
                 FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL).getReference("users").child(uid)
@@ -124,6 +140,17 @@ public class MainActivity extends AppCompatActivity {
 //            });
         });
 
+        if (!Settings.canDrawOverlays(this)) {
+            Log.d("ChatHead", "Chưa có quyền overlay, yêu cầu quyền...");
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 101);
+        } else {
+            Log.d("ChatHead", "Đã có quyền overlay, bắt đầu service...");
+            Intent serviceIntent = new Intent(this, ChatHeadService.class);
+            startService(serviceIntent);
+        }
+
 
 
 
@@ -135,45 +162,47 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(UserRepo.getCurrentUserUID()!=null)
+        if(userUID!=null&&!userUID.isEmpty())
         {
-            handler.postDelayed(this::seOffLine, 60000);
+            handler.postDelayed(this::seOffLine, 10000);
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(UserRepo.getCurrentUserUID()!= null){
-            FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL).getReference("users").child(UserRepo.getCurrentUserUID()).child("status").setValue("online")
-                    .addOnSuccessListener(runnable -> {
-                        Log.e( "onResume:: ","ok" );
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e( "onResume:: ",e.getMessage() );
-                    });
+        if(userUID!=null&&!userUID.isEmpty()){
+                userRef.setValue("online")
+                .addOnSuccessListener(runnable -> {
+                    Log.e( "onResume:: ","ok" );
+                })
+                .addOnFailureListener(e -> {
+                    Log.e( "onResume:: ",e.getMessage() );
+                });
+                userRef.onDisconnect().setValue("offline");
         }
 
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         seOffLine();
     }
     @Override
     protected void onStop() {
         super.onStop();
-        seOffLine();
+//        seOffLine();
     }
-    @Override
-    public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
-        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
-            seOffLine();
-        }
-    }
+//    @Override
+//    public void onTrimMemory(int level) {
+//        super.onTrimMemory(level);
+//        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+//            seOffLine();
+//        }
+//    }
     private void seOffLine(){
-        if (UserRepo.getCurrentUserUID() != null) {
+        if (userUID!=null&&!userUID.isEmpty()) {
             FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL)
                     .getReference("users")
                     .child(UserRepo.getCurrentUserUID())
