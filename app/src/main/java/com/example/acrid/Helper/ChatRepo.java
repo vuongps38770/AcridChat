@@ -8,7 +8,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.acrid.BuildConfig;
 import com.example.acrid.Constant.DB;
+import com.example.acrid.Model.Friend;
 import com.example.acrid.Model.Message;
+import com.example.acrid.Model.NotificationBody;
 import com.example.acrid.utils.TimeUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,6 +36,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ChatRepo {
     private static final FirebaseFirestore mFirebase = FirebaseFirestore.getInstance();
     private static final FirebaseDatabase mFireDB = FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL);
@@ -44,7 +51,7 @@ public class ChatRepo {
 
     }
 
-    public static void sendMessage(String conversationID, Message message, Consumer<Boolean> isSuccess ){
+    public static void sendMessage(String conversationID, Message message, String friendToken, Consumer<Boolean> isSuccess ){
         if(message.getMessage().trim().isEmpty()){
             return;
         }
@@ -64,6 +71,14 @@ public class ChatRepo {
                     Log.e("sendMessage: ","sent" );
                     updateConversation(conversationID,message);
                     createNewReadMark(conversationID,message.getSenderId());
+                    sendNotification(new NotificationBody(
+                            friendToken,
+                            "Tin nhắn mới",
+                            message.getMessage(),
+                            message.getSenderId(),
+                            conversationID,
+                            "null"
+                    ));
                 })
                 .addOnFailureListener(e -> {
                     Log.e("sendMessage: ",e.getMessage() );
@@ -274,6 +289,31 @@ public class ChatRepo {
                     Log.e("getPreviousMessages", "Lỗi: " + e.getMessage());
                     list.accept(Collections.emptyList());
                 });
+    }
+
+    private static void sendNotification(NotificationBody body){
+        NotificationAPI notificationAPI = new NotificationAPI();
+        API api = notificationAPI.createRetrofitClass(API.class);
+        api.sendNotification(body).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.isSuccessful()){
+                    if (response.code()==200){
+                        Log.e("sendNotification: ", "sent");
+                    }else {
+                        Log.e("sendNotification: ", "not sent "+ response.code());
+                    }
+                }else {
+                    Log.e("sendNotification: ", "not sent "+ response.raw());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("sendNotification: ", "not sent "+ throwable.getMessage());
+            }
+        });
+
     }
 
 

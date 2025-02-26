@@ -22,11 +22,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -277,31 +279,50 @@ public class UserRepo {
                 .delete();
     }
 
-    public static void saveToken(String userUID){
+    public static void saveToken(String userUID) {
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
-                    if(!task.isSuccessful()){
-                        Log.e("saveToken: ", Objects.requireNonNull(task.getException().getMessage()));
+                    if (!task.isSuccessful()) {
+                        Log.e("saveToken", "Lỗi lấy token: " + Objects.requireNonNull(task.getException()).getMessage());
                         return;
                     }
+
                     String newToken = task.getResult();
+                    if (newToken == null || newToken.isEmpty()) {
+                        Log.e("saveToken", "Token trống, không lưu.");
+                        return;
+                    }
+
+                    // Kiểm tra token cũ để tránh cập nhật không cần thiết
                     mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
                             .document(userUID)
-                            .update(DB.USER_COLLECTION.TOKEN.toString(),newToken)
-                            .addOnSuccessListener(runnable -> {
-                                Log.e("saveToken: ", "SavedToken");
+                            .get()
+                            .addOnSuccessListener(documentSnapshot -> {
+                                if (documentSnapshot.exists()) {
+                                    String oldToken = documentSnapshot.getString(DB.USER_COLLECTION.TOKEN.toString());
+                                    if (newToken.equals(oldToken)) {
+                                        Log.e("saveToken", "Token không thay đổi, không cập nhật.");
+                                        return;
+                                    }
+                                }
+
+                                // Nếu token thay đổi hoặc chưa có, lưu mới
+                                mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                                        .document(userUID)
+                                        .update(DB.USER_COLLECTION.TOKEN.toString(), newToken)
+                                        .addOnSuccessListener(unused -> Log.e("saveToken", "Token mới đã được lưu."))
+                                        .addOnFailureListener(e -> Log.e("saveToken", "Lỗi khi lưu token: " + e.getMessage()));
                             })
-                            .addOnFailureListener(e -> {
-                                Log.e( "saveToken: ",e.getMessage() );
-                            });
+                            .addOnFailureListener(e -> Log.e("saveToken", "Lỗi khi lấy token cũ: " + e.getMessage()));
                 });
     }
+
     public static void clearToken(String userUID){
         mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
                 .document(userUID)
-                .update(DB.USER_COLLECTION.TOKEN.toString(),"")
+                .set(Collections.singletonMap(DB.USER_COLLECTION.TOKEN.toString(), ""), SetOptions.merge())
                 .addOnSuccessListener(runnable -> {
-                    Log.e("saveToken: ", "SavedToken");
+                    Log.e("saveToken: ", "dã xoa");
                 })
                 .addOnFailureListener(e -> {
                     Log.e( "saveToken: ",e.getMessage() );

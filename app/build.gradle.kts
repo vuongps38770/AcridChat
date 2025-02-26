@@ -99,6 +99,12 @@ dependencies {
 
     // define any required OkHttp artifacts without version
     implementation ("com.google.auth:google-auth-library-oauth2-http:1.17.0")
+    implementation ("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation ("com.google.code.gson:gson:2.12.1")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("io.agora.rtc:voice-sdk:4.5.0")
+
+
 
 
 

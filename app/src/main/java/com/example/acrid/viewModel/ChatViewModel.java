@@ -128,7 +128,8 @@ public class ChatViewModel extends ViewModel {
 
         List<Message> finalList = list;
         ChatRepo.sendMessage(conversationsID.getValue(),
-                newMess,
+                newMess,partnerToken
+                ,
                 aBoolean -> {
                             if (!aBoolean) {
                                 newMess.setStatus(DB.CHAT_STATUS.FAILED.toString());
