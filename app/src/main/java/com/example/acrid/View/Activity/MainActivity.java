@@ -1,10 +1,13 @@
 package com.example.acrid.View.Activity;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Trace;
@@ -69,15 +72,27 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelId = "fcm_default_channel";
+            String channelName = "FCM Notifications";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
 
+            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+            channel.setDescription("Channel for FCM notifications");
+            channel.enableLights(true);
+            channel.enableVibration(true);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
         userUID =UserRepo.getCurrentUserUID();
         ////init trang thái online
         if(userUID!=null&&!userUID.isEmpty()){
             userRef= FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL).getReference("users").child(userUID).child("status");
             userRef.onDisconnect().setValue("offline");
         }
-
-
 
         binding.getRoot().post(()->{
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -179,14 +194,13 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e( "onResume:: ",e.getMessage() );
                 });
-                userRef.onDisconnect().setValue("offline");
         }
 
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        if(UserRepo.getCurrentUserUID().isEmpty()) return;
         seOffLine();
     }
     @Override
@@ -202,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
     private void seOffLine(){
-        if (userUID!=null&&!userUID.isEmpty()) {
+        if (UserRepo.getCurrentUserUID()!=null||!UserRepo.getCurrentUserUID().isEmpty()) {
             FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL)
                     .getReference("users")
                     .child(UserRepo.getCurrentUserUID())

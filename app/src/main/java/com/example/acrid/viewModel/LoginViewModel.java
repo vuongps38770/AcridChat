@@ -15,10 +15,10 @@ public class LoginViewModel extends ViewModel {
     public LoginViewModel() {
         email.setValue("daotanquocvuongfacker@gmail.com");
         password.setValue("123456");
-        initToken();
         loginState.observeForever(loginState1 -> {
             if(loginState1 instanceof LoginState.Success) {
                 initToken();
+
             }
         });
     }
