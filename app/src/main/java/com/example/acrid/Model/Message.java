@@ -8,6 +8,7 @@ public class Message {
     private long timestamp;
     private String repliedToMessageUID;
 
+
     public Message( String message, String type, String senderId, String status, String repliedToMessageUID) {
         this.message = message;
         this.type = type;

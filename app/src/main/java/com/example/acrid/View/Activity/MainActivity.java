@@ -1,5 +1,8 @@
 package com.example.acrid.View.Activity;
 
+import static com.example.acrid.Helper.FireBaseService.CHANNEL_ID;
+import static com.example.acrid.Helper.FireBaseService.NOTIFICATION_NAME;
+
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -72,21 +75,20 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String channelId = "fcm_default_channel";
-            String channelName = "FCM Notifications";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-
-            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
-            channel.setDescription("Channel for FCM notifications");
-            channel.enableLights(true);
-            channel.enableVibration(true);
-
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//            if (notificationManager.getNotificationChannel(CHANNEL_ID) == null) {
+//                NotificationChannel channel = new NotificationChannel(
+//                        CHANNEL_ID,
+//                        NOTIFICATION_NAME,
+//                        NotificationManager.IMPORTANCE_HIGH
+//                );
+//                channel.setDescription("Nhận thông báo tin nhắn từ bạn bè");
+//
+//                notificationManager.createNotificationChannel(channel);
+//            }
+//
+//        }
         userUID =UserRepo.getCurrentUserUID();
         ////init trang thái online
         if(userUID!=null&&!userUID.isEmpty()){
@@ -155,21 +157,6 @@ public class MainActivity extends AppCompatActivity {
 //            });
         });
 
-        if (!Settings.canDrawOverlays(this)) {
-            Log.d("ChatHead", "Chưa có quyền overlay, yêu cầu quyền...");
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 101);
-        } else {
-            Log.d("ChatHead", "Đã có quyền overlay, bắt đầu service...");
-            Intent serviceIntent = new Intent(this, ChatHeadService.class);
-            startService(serviceIntent);
-        }
-
-
-
-
-
 
     }
     private Handler handler = new Handler();
@@ -197,17 +184,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(UserRepo.getCurrentUserUID().isEmpty()) return;
-        seOffLine();
-    }
-    @Override
-    protected void onStop() {
-        super.onStop();
-//        seOffLine();
-    }
+
 //    @Override
 //    public void onTrimMemory(int level) {
 //        super.onTrimMemory(level);
@@ -217,13 +194,7 @@ public class MainActivity extends AppCompatActivity {
 //    }
     private void seOffLine(){
         if (UserRepo.getCurrentUserUID()!=null||!UserRepo.getCurrentUserUID().isEmpty()) {
-            FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL)
-                    .getReference("users")
-                    .child(UserRepo.getCurrentUserUID())
-                    .child("status")
-                    .setValue("offline")
-                    .addOnSuccessListener(aVoid -> Log.e("onStop:: ", "User offline"))
-                    .addOnFailureListener(e -> Log.e("onStop:: ", e.getMessage()));
+            userRef.setValue("offline");
         }
 
     }

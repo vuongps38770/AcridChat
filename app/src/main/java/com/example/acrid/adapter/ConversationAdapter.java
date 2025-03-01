@@ -28,8 +28,8 @@ import java.util.Optional;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder>{
 
-    private Context context;
-    private String userUID=UserRepo.getCurrentUserUID();
+    private final Context context;
+    private final String userUID=UserRepo.getCurrentUserUID();
     private OnConversationClickListener onConversationClickListener;
     private OnConversationLongClickListener onConversationLongClickListener;
 
@@ -54,7 +54,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.conversation_item,parent,false));
+        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.conversation_item, parent, false));
     }
 
     @Override
@@ -106,7 +106,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         return 0;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder{
 
         ImageView profileIMG,mark;
         TextView name;

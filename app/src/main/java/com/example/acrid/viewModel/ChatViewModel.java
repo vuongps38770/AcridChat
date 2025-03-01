@@ -1,6 +1,8 @@
 package com.example.acrid.viewModel;
 
+import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -13,6 +15,7 @@ import com.example.acrid.Helper.ChatRepo;
 import com.example.acrid.Helper.UserRepo;
 import com.example.acrid.Model.Message;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,14 +25,17 @@ public class ChatViewModel extends ViewModel {
     public MutableLiveData<Boolean> isChatScreenActive  = new MutableLiveData<>(false);
     public MutableLiveData<String> conversationsID = new MutableLiveData<>("");
     public MutableLiveData<String> senderID = new MutableLiveData<>("");
+    public MutableLiveData<String> parnerName = new MutableLiveData<>("");
     public MutableLiveData<String> message = new MutableLiveData<>("");
     public MutableLiveData<String> type = new MutableLiveData<>("text");
+    public MutableLiveData<String> errorMessage = new MutableLiveData<>("");
     public MutableLiveData<String> replyTo = new MutableLiveData<>("");
     public MutableLiveData<Boolean> partnerStatus = new MutableLiveData<>(false);
     public MutableLiveData<String> partnerUID = new MutableLiveData<>("");
     public MutableLiveData<Map<String,Long>> lastSeenMap = new MutableLiveData<>();
     public MutableLiveData<Boolean> isPartnerTyping = new MutableLiveData<>(false);
     public MutableLiveData<Boolean> isUserTyping = new MutableLiveData<>(false);
+    public MutableLiveData<File> image= new MutableLiveData<>();
     private final LiveData<Boolean> isReady = Transformations.switchMap(conversationsID, convID ->
             Transformations.map(partnerUID, uid ->
                     convID != null && !convID.isEmpty() && uid != null && !uid.isEmpty()
@@ -45,6 +51,14 @@ public class ChatViewModel extends ViewModel {
         senderID.postValue(UserRepo.getCurrentUserUID());
         observeConversation();
         initUserTyping();
+        obseveImage();
+    }
+
+    private void obseveImage() {
+        image.observeForever(file -> {
+            if(file==null) type.postValue(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.TEXT.toString());
+            else type.postValue(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.IMAGE.toString());
+        });
     }
 
     private void initUserTyping() {
@@ -56,6 +70,7 @@ public class ChatViewModel extends ViewModel {
     }
 
     private void initLastSeenMap(String chatUID){
+
         ChatRepo.getLastSeenMap(chatUID).observeForever(stringLongMap -> {
             lastSeenMap.postValue(stringLongMap);
         });
@@ -110,42 +125,100 @@ public class ChatViewModel extends ViewModel {
         });
     }
 
+
+
     public void sendMessage(String partnerToken){
+        if(type.getValue().equals(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.TEXT.toString())){
+            sendTextMessage(partnerToken);
+        }else if (type.getValue().equals(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.IMAGE.toString())){
+            sendImageMessage(partnerToken);
+        }
+    }
+
+    private void sendTextMessage(String partnerToken) {
         if(senderID.getValue().isEmpty()||type.getValue().isEmpty()||message.getValue().trim().isEmpty()) return;
-
-
         boolean isHaveReplyTo = replyTo.getValue()!=null&&!replyTo.getValue().isEmpty();
         Message newMess=new Message(message.getValue(),
                 type.getValue(),senderID.getValue(),
                 DB.CHAT_STATUS.SENDING.toString(),
                 isHaveReplyTo?replyTo.getValue():null);
+
         message.setValue("");
         List<Message> list = chatData.getValue();
         if (list == null) {
             list = new ArrayList<>();
         }
 
-
         List<Message> finalList = list;
         ChatRepo.sendMessage(conversationsID.getValue(),
                 newMess,partnerToken
-                ,
+                ,parnerName.getValue(),
                 aBoolean -> {
+                    if (!aBoolean) {
+                        newMess.setStatus(DB.CHAT_STATUS.FAILED.toString());
+                        finalList.add(newMess);
+                        chatData.setValue(new ArrayList<>(finalList));
+                    }
+
+                });
+    }
+
+    private void sendImageMessage(String partnerToken){
+        if(senderID.getValue().isEmpty()||type.getValue().isEmpty()||image==null) return;
+        boolean isHaveReplyTo = replyTo.getValue()!=null&&!replyTo.getValue().isEmpty();
+        Message newMess=new Message(message.getValue(),
+                type.getValue(),senderID.getValue(),
+                DB.CHAT_STATUS.SENDING.toString(),
+                isHaveReplyTo?replyTo.getValue():null);
+
+
+
+        ChatRepo.sendImageSingle(image.getValue(), new ChatRepo.SendImageCallBack() {
+            @Override
+            public void onSuccess(String imgUrl) {
+                image.postValue(null);
+                type.postValue(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.TEXT.toString());
+                Log.e( "onSuccess: ", imgUrl);
+                Message newMess=new Message(imgUrl,
+                        type.getValue(),senderID.getValue(),
+                        DB.CHAT_STATUS.SENDING.toString(),
+                        isHaveReplyTo?replyTo.getValue():null);
+                List<Message> list = chatData.getValue();
+                if (list == null) {
+                    list = new ArrayList<>();
+                }
+
+                List<Message> finalList = list;
+                ChatRepo.sendMessage(conversationsID.getValue(),
+                        newMess,partnerToken
+                        ,parnerName.getValue(),
+                        aBoolean -> {
                             if (!aBoolean) {
                                 newMess.setStatus(DB.CHAT_STATUS.FAILED.toString());
                                 finalList.add(newMess);
                                 chatData.setValue(new ArrayList<>(finalList));
-
-//                            }else {
-//                                FireBaseService.sendMessage(partnerToken,"tin nhắn mới",newMess.getMessage());
-////                                try {
-//////                                    FireBaseService.sendNotification(partnerToken,"tin nhắn mới",newMess.getMessage());
-////                                } catch (IOException e) {
-////                                    Log.e( "sendMessage: ",e.getMessage() );
-////                                }
                             }
-
                         });
+
+
+            }
+
+            @Override
+            public void onFailure(String err) {
+                image.setValue(null);
+                type.setValue(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.TEXT.toString());
+                Log.e( "onFail: ", err);
+
+            }
+
+            @Override
+            public void onError() {
+                Log.e( "onSuccess: ", "fail");
+                image.setValue(null);
+                type.setValue(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.TEXT.toString());
+
+            }
+        });
     }
 
     public void loadOlderMessages() {

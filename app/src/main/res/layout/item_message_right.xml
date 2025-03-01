@@ -11,7 +11,22 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:id="@+id/time"/>
+
     <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="300dp"
+            android:maxHeight="300dp"
+            android:visibility="gone"
+            android:id="@+id/img"
+            android:scaleType="matrix"
+            android:layout_gravity="end"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/messageTextContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/rightbg"
@@ -32,6 +47,7 @@
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginStart="5dp"
-        app:tint="@color/bg"/>
+        app:tint="@color/bg" />
+
 
 </LinearLayout>

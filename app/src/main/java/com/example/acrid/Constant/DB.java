@@ -209,8 +209,24 @@ public enum DB {;
             public String toString() {
                 return "messageUID";
             }
-        }
+        };
 
+        public static enum MESSAGE_TYPE{
+            TEXT{
+                @NonNull
+                @Override
+                public String toString() {
+                    return "text";
+                }
+            },
+            IMAGE{
+                @NonNull
+                @Override
+                public String toString() {
+                    return "image";
+                }
+            }
+        }
     }
 
 

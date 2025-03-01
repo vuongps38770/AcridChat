@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.acrid.BuildConfig;
 import com.example.acrid.Constant.DB;
 import com.example.acrid.Model.Friend;
+import com.example.acrid.Model.ImageSingle;
 import com.example.acrid.Model.Message;
 import com.example.acrid.Model.NotificationBody;
 import com.example.acrid.utils.TimeUtils;
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.SetOptions;
 
 import org.apache.commons.logging.LogFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,14 +49,13 @@ import retrofit2.Response;
 public class ChatRepo {
     private static final FirebaseFirestore mFirebase = FirebaseFirestore.getInstance();
     private static final FirebaseDatabase mFireDB = FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL);
-    private static final long LIMIT_LOAD_MESSAGE= 40;
-    private static final org.apache.commons.logging.Log log = LogFactory.getLog(ChatRepo.class);
+    private static final long LIMIT_LOAD_MESSAGE= 20;
 
     public ChatRepo() {
 
     }
 
-    public static void sendMessage(String conversationID, Message message, String friendToken, Consumer<Boolean> isSuccess ){
+    public static void sendMessage(String conversationID, Message message, String friendToken,String friendName, Consumer<Boolean> isSuccess ){
         if(message.getMessage().trim().isEmpty()){
             return;
         }
@@ -75,8 +79,10 @@ public class ChatRepo {
                             friendToken,
                             "Tin nhắn mới",
                             message.getMessage(),
-                            message.getSenderId(),
+                            message.getSenderId()
+                            ,friendName,
                             conversationID,
+                            message.getType(),
                             "null"
                     ));
                 })
@@ -132,7 +138,7 @@ public class ChatRepo {
                 .document(conversationsUID)
                 .collection(DB.MESSAGES_COLLECTION.NAME.toString())
                 .orderBy(DB.MESSAGES_COLLECTION.TIMESTAMP.toString(), Query.Direction.DESCENDING)
-                .limit(20)
+                .limit(LIMIT_LOAD_MESSAGE)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (DocumentSnapshot documentSnapshot:queryDocumentSnapshots){
@@ -160,10 +166,13 @@ public class ChatRepo {
         mFirebase.collection(DB.CONVERSATIONS_COLLECTION.NAME.toString())
                 .document(conversationID)
                 .addSnapshotListener((value, error) -> {
-                    Map<String,Long> dataMap =(Map<String, Long>) value.get(DB.CONVERSATIONS_COLLECTION.LAST_SEEN.toString());
+                    if(value!=null){
+                        Map<String,Long> dataMap =(Map<String, Long>) value.get(DB.CONVERSATIONS_COLLECTION.LAST_SEEN.toString());
 
-                    if(dataMap!=null) data.postValue(dataMap);
-                    else data.postValue(new HashMap<>());
+                        if(dataMap!=null) data.postValue(dataMap);
+                        else data.postValue(new HashMap<>());
+                    }
+
                 });
         return data;
     }
@@ -316,5 +325,38 @@ public class ChatRepo {
 
     }
 
+    public static void sendImageSingle(File img,SendImageCallBack callBack){
+        NotificationAPI notificationAPI = new NotificationAPI();
+        API api = notificationAPI.createRetrofitClass(API.class);
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), img);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("image", img.getName(), requestFile);
+        api.sendImage(body).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if(response.isSuccessful()){
+                    if (response.code()==200){
+                        String url =(String) response.body().get("url");
+                       callBack.onSuccess(url);
+                    }else {
+                        Log.e("send: ", "not sent "+ response.code());
+                        callBack.onFailure(response.message());
+                    }
+                }else {
+                    Log.e("dend: ", "not sent "+ response.raw());
+                    callBack.onFailure(response.message());
+                }
+            }
 
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable throwable) {
+                callBack.onError();
+            }
+        });
+    }
+
+    public interface SendImageCallBack{
+        void onSuccess(String imgUrl);
+        void onFailure(String err);
+        void onError();
+    }
 }

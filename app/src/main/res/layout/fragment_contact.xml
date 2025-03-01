@@ -56,12 +56,38 @@
                         <LinearLayout
                             android:id="@+id/gotoACP"
                             android:layout_width="match_parent"
-                            android:layout_height="50dp">
+                            android:layout_height="50dp"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="20dp">
                             <TextView
-                                android:textColor="@color/white"
+                                android:textColor="@color/mainChild"
+                                android:textSize="20sp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="xem danh yêu cầu kết bạn"/>
+                                android:text="Xem danh yêu cầu kết bạn"
+                                android:layout_weight="1"
+
+                                />
+                            <LinearLayout
+                                android:id="@+id/mark"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:background="@drawable/mark"
+                                android:visibility="gone"
+                                android:gravity="center_vertical|center_horizontal">
+                                <TextView
+                                    android:id="@+id/markCount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/bg"
+                                    />
+                            </LinearLayout>
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/arrow_ios_forward_svgrepo_com"
+                                app:tint="@color/mainChild"/>
                         </LinearLayout>
                         <androidx.recyclerview.widget.RecyclerView
                             android:paddingHorizontal="20dp"

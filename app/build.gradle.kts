@@ -39,6 +39,7 @@ android {
         }
         debug{
             buildConfigField("String", "FIREBASE_SOCKET_URL",localProperties.getProperty("FIREBASE_SOCKET_URL"))
+            buildConfigField("String","APP_ID_AGORA", localProperties.getProperty("APP_ID_AGORA") )
         }
 
     }

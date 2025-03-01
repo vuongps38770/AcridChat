@@ -9,119 +9,128 @@
             name="viewModel"
             type="com.example.acrid.viewModel.SignUpViewModel" />
     </data>
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:background="@color/bg"
-        android:paddingHorizontal="20dp"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textColor="@color/mainChild"
-            android:text="Sign Up"
-            android:textSize="40dp"
-            android:layout_marginVertical="20dp"
-            android:fontFamily="sans-serif"/>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/boxEmailWrapper"
+        android:fillViewport="true">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:helperTextEnabled="true"
-            app:helperText="Tài khoản email"
-            android:hint="abc@gmail.com"
-            app:errorEnabled="true"
-            app:helperTextTextColor="@color/primary">
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/edtEmail"
-                android:text="@={viewModel.email}"
-                android:backgroundTint="@color/primary"
-                android:background="@drawable/corner_tr_bl"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/boxNickNameWrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:helperTextEnabled="true"
-            app:helperText="Nhập nick name"
-            android:hint="Nick name"
-            app:helperTextTextColor="@color/primary"
-            android:layout_marginTop="10dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="@color/bg"
+            android:paddingHorizontal="20dp"
             >
-            <com.google.android.material.textfield.TextInputEditText
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/mainChild"
+                android:text="Sign Up"
+                android:textSize="40dp"
+                android:layout_marginVertical="20dp"
+                android:fontFamily="sans-serif"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/boxEmailWrapper"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/edtNickName"
-                android:text="@={viewModel.nickName}"
-                android:backgroundTint="@color/primary"
-                android:background="@drawable/corner_tr_bl"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/boxPasswordWrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:helperTextEnabled="true"
-            app:helperText="Nhập mật khẩu"
-            android:hint="Mật khẩu"
-            app:endIconMode="password_toggle"
-            app:helperTextTextColor="@color/primary"
-            android:layout_marginTop="10dp"
+                android:layout_height="wrap_content"
+                app:helperTextEnabled="true"
+                app:helperText="Tài khoản email"
+                android:hint="abc@gmail.com"
+                app:errorEnabled="true"
+                app:helperTextTextColor="@color/primary">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/edtEmail"
+                    android:text="@={viewModel.email}"
+                    android:backgroundTint="@color/primary"
+                    android:background="@drawable/corner_tr_bl"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            >
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/boxNickNameWrapper"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/edtPassword"
-                android:inputType="textPassword"
-                android:text="@={viewModel.password}"
-                android:backgroundTint="@color/primary"
-                android:background="@drawable/corner_tr_bl"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/boxRePasswordWrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:helperTextEnabled="true"
-            app:helperText="Xác nhận mật khẩu"
-            android:hint="Xác nhận"
-            app:endIconMode="password_toggle"
-            app:hintTextColor="@color/white"
-            app:helperTextTextColor="@color/primary"
-            android:layout_marginTop="10dp"
+                android:layout_height="wrap_content"
+                app:helperTextEnabled="true"
+                app:helperText="Nhập nick name"
+                android:hint="Nick name"
+                app:helperTextTextColor="@color/primary"
+                android:layout_marginTop="10dp"
+                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/edtNickName"
+                    android:text="@={viewModel.nickName}"
+                    android:backgroundTint="@color/primary"
+                    android:background="@drawable/corner_tr_bl"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/boxPasswordWrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperTextEnabled="true"
+                app:helperText="Nhập mật khẩu"
+                android:hint="Mật khẩu"
+                app:endIconMode="password_toggle"
+                app:helperTextTextColor="@color/primary"
+                android:layout_marginTop="10dp"
 
-            >
-            <com.google.android.material.textfield.TextInputEditText
+                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/edtPassword"
+                    android:inputType="textPassword"
+                    android:text="@={viewModel.password}"
+                    android:backgroundTint="@color/primary"
+                    android:background="@drawable/corner_tr_bl"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/boxRePasswordWrapper"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/edtRePassword"
-                android:inputType="textPassword"
-                android:text="@={viewModel.rePassword}"
-                android:backgroundTint="@color/primary"
-                android:background="@drawable/corner_tr_bl"
+                android:layout_height="wrap_content"
+                app:helperTextEnabled="true"
+                app:helperText="Xác nhận mật khẩu"
+                android:hint="Xác nhận"
+                app:endIconMode="password_toggle"
+                app:hintTextColor="@color/white"
+                app:helperTextTextColor="@color/primary"
+                android:layout_marginTop="10dp"
+
+                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/edtRePassword"
+                    android:inputType="textPassword"
+                    android:text="@={viewModel.rePassword}"
+                    android:backgroundTint="@color/primary"
+                    android:background="@drawable/corner_tr_bl"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnSignUp"
+                android:text="Đăng ký"
+                android:backgroundTint="@color/mainChild"
+                android:background="@drawable/all_corner"
+                android:layout_marginTop="10dp"
                 />
-        </com.google.android.material.textfield.TextInputLayout>
-        <androidx.appcompat.widget.AppCompatButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnSignUp"
-            android:text="Đăng ký"
-            android:backgroundTint="@color/mainChild"
-            android:background="@drawable/all_corner"
-            android:layout_marginTop="10dp"
-            />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Đăng nhập"
-            android:textColor="@color/mainChild"
-            android:id="@+id/txtSignUp"/>
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đăng nhập"
+                android:textColor="@color/mainChild"
+                android:id="@+id/txtSignUp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="400dp"/>
+        </LinearLayout>
+    </ScrollView>
 </layout>

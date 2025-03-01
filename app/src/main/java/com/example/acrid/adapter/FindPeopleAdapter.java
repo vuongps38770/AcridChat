@@ -29,9 +29,9 @@ public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.Vi
         notifyDataSetChanged();
     }
 
-    private Context context;
+    private final Context context;
     private List<People> list;
-    private String userUID;
+    private final String userUID;
     private OnAddFriendClickedListener onAddFriendClickedListener;
 
     public OnAddFriendClickedListener getOnAddFriendClickedListener() {
@@ -51,7 +51,7 @@ public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.find_people_item,parent,false));
+        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.find_people_item, parent, false));
     }
 
     @Override
@@ -86,7 +86,6 @@ public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.Vi
                 }else Log.e("click: ", "not");
             });
         }
-
     }
 
     @Override
@@ -95,7 +94,7 @@ public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.Vi
         return 0;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder{
         ImageView profileIMG;
         TextView name;
         TextView status;

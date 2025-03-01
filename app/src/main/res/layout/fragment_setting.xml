@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <import type="androidx.lifecycle.ViewModelProvider"/>
         <variable
@@ -14,7 +14,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".View.Fragment.SettingFragment">
+        tools:context=".View.Fragment.SettingFragment"
+        android:background="@color/bg">
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -22,10 +23,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:gravity="center_horizontal">
+                android:gravity="center_horizontal"
+                android:paddingHorizontal="20dp"
+                android:clipToPadding="false">
                 <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    >
                     <com.makeramen.roundedimageview.RoundedImageView
                         android:id="@+id/imgAVT"
                         android:layout_width="200dp"
@@ -33,6 +37,8 @@
                         android:scaleType="centerCrop"
                         android:src="@drawable/img"
                         android:layout_marginTop="30dp"
+                        app:riv_oval="true"
+                        app:riv_corner_radius="100dp"
                         />
                     <ImageView
                         android:id="@+id/editImg"
@@ -40,7 +46,8 @@
                         android:layout_height="24dp"
                         android:background="@drawable/transparent"
                         android:src="@drawable/image_add_svgrepo_com"
-                        android:layout_gravity="bottom|right"/>
+                        android:layout_gravity="bottom|right"
+                        app:tint="@color/mainChild"/>
 
                 </FrameLayout>
                 <TextView
@@ -51,6 +58,7 @@
                     android:background="@drawable/transparent"
                     android:gravity="center"
                     android:textSize="20dp"
+                    android:textColor="@color/mainChild"
                     />
                 <TextView
                     android:layout_width="match_parent"
@@ -59,37 +67,49 @@
                     android:background="@drawable/transparent"
                     android:layout_gravity="center"
                     android:text="@{viewModel.status}"
-                    android:layout_marginTop="10dp"/>
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/white"/>
+
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/info"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Thông tin cá nhân"
                     android:textAllCaps="false"
-                    android:drawableStart="@drawable/image_add_svgrepo_com"
+                    android:drawableTint="@color/mainChild"
+                    android:drawableStart="@drawable/baseline_account_circle_24"
                     android:gravity="left|center_vertical"
                     android:drawablePadding="10dp"
-                    android:drawableEnd="@drawable/baseline_arrow_back_ios_24"
-                    android:background="@drawable/transparent"/>
+                    android:drawableEnd="@drawable/arrow_ios_forward_svgrepo_com"
+                    android:background="@drawable/transparent"
+                    android:textColor="@color/mainChild"/>
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/sercure"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Bảo mật"
+                    android:textAllCaps="false"
+                    android:drawableTint="@color/mainChild"
+                    android:drawableStart="@drawable/security_svgrepo_com"
+                    android:gravity="left|center_vertical"
+                    android:drawablePadding="10dp"
+                    android:drawableEnd="@drawable/arrow_ios_forward_svgrepo_com"
+                    android:background="@drawable/transparent"
+                    android:textColor="@color/mainChild"/>
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/logout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:drawableTint="@color/mainChild"
+                    android:textColor="@color/mainChild"
                     android:text="Đăng xuất"
                     android:textAllCaps="false"
-                    android:drawableStart="@drawable/image_add_svgrepo_com"
+                    android:drawableStart="@drawable/baseline_logout_24"
                     android:gravity="left|center_vertical"
                     android:drawablePadding="10dp"
-                    android:drawableEnd="@drawable/baseline_arrow_back_ios_24"
+                    android:drawableEnd="@drawable/arrow_ios_forward_svgrepo_com"
                     android:background="@drawable/transparent"/>
-
-
-
-
-
             </LinearLayout>
         </ScrollView>
-
-
     </FrameLayout>
 </layout>

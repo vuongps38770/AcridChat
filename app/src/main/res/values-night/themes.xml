@@ -3,5 +3,8 @@
     <style name="Base.Theme.Acrid" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/mainChild</item>
+
+        <item name="colorControlActivated">@color/mainChild</item>
     </style>
 </resources>

@@ -6,11 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.example.acrid.Constant.DB;
 import com.example.acrid.Model.Message;
 import com.example.acrid.R;
 import com.example.acrid.utils.TimeUtils;
@@ -23,7 +26,6 @@ import java.util.Map;
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
     private static final int MSG_RIGHT = 1;
     private static final int MSG_LEFT = 0;
-    private static final org.apache.commons.logging.Log log = LogFactory.getLog(MessageAdapter.class);
     private RecyclerView recyclerView;
     private Context context;
     private List<Message> messageList;
@@ -78,16 +80,40 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messageList.get(position);
-        holder.tvMessage.setText(message.getMessage());
+        holder.messageTextContainer.setVisibility(View.GONE);
+        holder.img.setVisibility(View.GONE);
+
+        if(message.getType().equals(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.TEXT.toString())){
+            holder.messageTextContainer.setVisibility(View.VISIBLE);
+            holder.tvMessage.setText(message.getMessage());
+        }
+
+
+        else if (message.getType().equals(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.IMAGE.toString())){
+            holder.img.setVisibility(View.VISIBLE);
+            Glide.with(holder.img)
+                    .load(message.getMessage())
+                    .placeholder(R.drawable.load)
+                    .error(R.drawable.err)
+                    .into(holder.img);
+        }
+
+
+        else holder.itemView.setVisibility(View.GONE);
+
         String date = TimeUtils.getTimeAgo(message.getTimestamp());
         Log.e("onBindViewHolder: ",message.getTimestamp()+"////"+date );
         if (position > 0 && TimeUtils.getTimeAgo(messageList.get(position - 1).getTimestamp()).equals(date)) {
-
             holder.time.setVisibility(View.GONE);
         } else {
             holder.time.setVisibility(View.VISIBLE);
             holder.time.setText(date);
         }
+
+
+
+
+
         if(lastSeenMap!=null&&getItemViewType(position)==MSG_RIGHT){
             Log.e("onBindViewHolder: ","not null" );
             holder.imgStatus.setVisibility(View.GONE);
@@ -153,13 +179,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvMessage, time;
-        ImageView imgStatus;
+        ImageView imgStatus,img;
+        LinearLayout messageTextContainer;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMessage = itemView.findViewById(R.id.tv_message);
             imgStatus = itemView.findViewById(R.id.img_status);
             time = itemView.findViewById(R.id.time);
+            img = itemView.findViewById(R.id.img);
+            messageTextContainer = itemView.findViewById(R.id.messageTextContainer);
+
         }
     }
 }
