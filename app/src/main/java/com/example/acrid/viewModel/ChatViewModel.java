@@ -1,9 +1,13 @@
 package com.example.acrid.viewModel;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.core.util.Consumer;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -13,7 +17,9 @@ import androidx.lifecycle.ViewModel;
 import com.example.acrid.Constant.DB;
 import com.example.acrid.Helper.ChatRepo;
 import com.example.acrid.Helper.UserRepo;
+import com.example.acrid.Model.GlobalData;
 import com.example.acrid.Model.Message;
+import com.example.acrid.View.Dialog.ImageDialogFragment;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,6 +42,8 @@ public class ChatViewModel extends ViewModel {
     public MutableLiveData<Boolean> isPartnerTyping = new MutableLiveData<>(false);
     public MutableLiveData<Boolean> isUserTyping = new MutableLiveData<>(false);
     public MutableLiveData<File> image= new MutableLiveData<>();
+    public MutableLiveData<Integer> notifiPos= new MutableLiveData<>(-1);
+
     private final LiveData<Boolean> isReady = Transformations.switchMap(conversationsID, convID ->
             Transformations.map(partnerUID, uid ->
                     convID != null && !convID.isEmpty() && uid != null && !uid.isEmpty()
@@ -86,6 +94,7 @@ public class ChatViewModel extends ViewModel {
             if (id != null && !id.isEmpty()&&id.equals(this.conversationsID.getValue())) {
                 initChatData(id);
                 initLastSeenMap(id);
+                GlobalData.getInstance().setCurentConversationID(id);
             }
         });
         partnerUID.observeForever(string -> {
@@ -102,6 +111,7 @@ public class ChatViewModel extends ViewModel {
 
     }
     public void addToReadMark(){
+        Log.e("addToReadMark: ","added" );
         ChatRepo.addToReadMark(conversationsID.getValue(),UserRepo.getCurrentUserUID());
     }
 
@@ -113,10 +123,8 @@ public class ChatViewModel extends ViewModel {
     }
     int time =1;
     private void initChatData(String conversationsID){
-        Log.e("ChatViewModel", "initChatData called with ID: " + conversationsID);
         ChatRepo.getMessageList(conversationsID).observeForever(messages -> {
-            Log.e("initChatData: ", "lần "+time++);
-            chatData.postValue(messages);
+            chatData.setValue(messages);
             if (messages != null && !messages.isEmpty()&& Boolean.TRUE.equals(isChatScreenActive.getValue())) {
                 long lastMessageTimeStamp= messages.get(messages.size() - 1).getTimestamp();
                 ChatRepo.updatelastSeen(conversationsID, UserRepo.getCurrentUserUID(),lastMessageTimeStamp);
@@ -124,7 +132,6 @@ public class ChatViewModel extends ViewModel {
             }
         });
     }
-
 
 
     public void sendMessage(String partnerToken){
@@ -142,7 +149,6 @@ public class ChatViewModel extends ViewModel {
                 type.getValue(),senderID.getValue(),
                 DB.CHAT_STATUS.SENDING.toString(),
                 isHaveReplyTo?replyTo.getValue():null);
-
         message.setValue("");
         List<Message> list = chatData.getValue();
         if (list == null) {
@@ -155,9 +161,16 @@ public class ChatViewModel extends ViewModel {
                 ,parnerName.getValue(),
                 aBoolean -> {
                     if (!aBoolean) {
+
                         newMess.setStatus(DB.CHAT_STATUS.FAILED.toString());
                         finalList.add(newMess);
+                        notifiPos.setValue(finalList.indexOf(newMess));
+                        Log.e("sendTextMessage: ", finalList.indexOf(newMess)+"");
                         chatData.setValue(new ArrayList<>(finalList));
+                    }else {
+                        Log.e("sendTextMessage: ", newMess.getStatus());
+                        newMess.setStatus(DB.CHAT_STATUS.SENT.toString());
+                        notifiPos.setValue(finalList.indexOf(newMess));
                     }
 
                 });
@@ -204,10 +217,16 @@ public class ChatViewModel extends ViewModel {
             }
 
             @Override
+            public void onLoading(boolean onload) {
+
+            }
+
+            @Override
             public void onFailure(String err) {
                 image.setValue(null);
                 type.setValue(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.TEXT.toString());
                 Log.e( "onFail: ", err);
+                errorMessage.setValue("Lỗi, không thể gửi ảnh");
 
             }
 
@@ -221,7 +240,7 @@ public class ChatViewModel extends ViewModel {
         });
     }
 
-    public void loadOlderMessages() {
+    public void loadOlderMessages(Consumer<Boolean> isHasMoreMSG) {
         String conversationId = conversationsID.getValue();
         if (conversationId == null || conversationId.isEmpty()) return;
 
@@ -232,7 +251,8 @@ public class ChatViewModel extends ViewModel {
         if (lastMessageTimestamp==-1){
             return;
         }
-        ChatRepo.getPreviousMessages(conversationId,lastMessageTimestamp , oldMessages -> {
+        ChatRepo.getPreviousMessages(conversationId,lastMessageTimestamp , (oldMessages,isHasMore) -> {
+            isHasMoreMSG.accept(isHasMore);
             if (oldMessages != null && !oldMessages.isEmpty()) {
                 for (Message message1:oldMessages){
                     Log.e("loadOlderMessages: ",message1.getTimestamp()+"" );
@@ -243,5 +263,13 @@ public class ChatViewModel extends ViewModel {
                 chatData.postValue(updatedMessages);
             }
         });
+    }
+
+    public void clickItem(FragmentManager manager, Message message) {
+        if(message.getType().equals(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.IMAGE.toString())){
+            ImageDialogFragment dialogFragment = new ImageDialogFragment(message.getMessage());
+            dialogFragment.show(manager,"image_dialog");
+        }
+
     }
 }

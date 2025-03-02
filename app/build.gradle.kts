@@ -104,6 +104,7 @@ dependencies {
     implementation ("com.google.code.gson:gson:2.12.1")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("io.agora.rtc:voice-sdk:4.5.0")
+    implementation ("com.github.Baseflow:PhotoView:2.3.0")
 
 
 

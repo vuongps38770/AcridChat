@@ -19,13 +19,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:id="@+id/toolBar"
-                android:background="@color/bg"
+                android:background="@color/primary"
                 app:navigationIcon="@drawable/baseline_arrow_back_ios_24"
-
+                app:titleTextColor="@color/mainChild"
 
                 />
             <androidx.recyclerview.widget.RecyclerView
-                android:background="@color/bg"
+                android:paddingHorizontal="20dp"
+                android:clipToPadding="false"
+                android:background="@color/primary"
                 android:id="@+id/recycler"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

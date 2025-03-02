@@ -47,17 +47,20 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Friend thisFriend= list.get(position);
         Glide.with(holder.profileIMG)
-                .load(thisFriend.getUserUID())
+                .load(thisFriend.getProfileIMG())
                 .placeholder(R.drawable.load)
                 .error(R.drawable.img)
                 .into(holder.profileIMG);
-        holder.name.setText(thisFriend.getIDName());
+        holder.name.setText(thisFriend.getDisplayName());
         holder.seeMore.setOnClickListener(view -> {
             if(onSeeMoreClickListener!=null){
                 onSeeMoreClickListener.onClicked(holder.seeMore,thisFriend,holder.getAdapterPosition());
             }
         });
+        holder.txtID.setText(thisFriend.getIDName());
+        holder.profileIMG.setOnClickListener(view -> {
 
+        });
     }
 
     @Override
@@ -68,13 +71,14 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         ImageView profileIMG;
-        TextView name;
+        TextView name,txtID;
         ImageView seeMore;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             profileIMG = itemView.findViewById(R.id.imgProfileIMG);
             name = itemView.findViewById(R.id.txtName);
             seeMore = itemView.findViewById(R.id.seeMore);
+            txtID = itemView.findViewById(R.id.txtID);
         }
 
     }

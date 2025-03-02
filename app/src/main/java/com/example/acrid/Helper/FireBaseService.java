@@ -3,6 +3,8 @@ package com.example.acrid.Helper;
 import android.Manifest;
 import android.app.Notification;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -11,6 +13,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.acrid.Constant.DB;
+import com.example.acrid.Model.GlobalData;
 import com.example.acrid.R;
 import com.example.acrid.View.Activity.MainActivity;
 
@@ -83,6 +86,16 @@ public class FireBaseService extends FirebaseMessagingService {
             String chatId = remoteMessage.getData().get("chatId");
             Log.e("onMessageReceived: ",senderName+"   "+messageType+"   "+chatId );
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            if (GlobalData.getInstance().getCurentConversationID()!=null&&GlobalData.getInstance().getCurentConversationID().equals(chatId)){
+
+                Uri notificationSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                // Phát âm thanh
+                Ringtone ringtone = RingtoneManager.getRingtone(this, notificationSound);
+                if (ringtone != null) {
+                    ringtone.play();
+                }
+                return;
+            }
             showNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody(),senderName,messageType);
         }
 

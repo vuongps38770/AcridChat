@@ -28,6 +28,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
@@ -59,10 +60,9 @@ public class MainActivity extends AppCompatActivity {
     private final Set<Integer> hiddenBottomBarFrag= new HashSet<>(Arrays.asList(
             R.id.signUpFragment,
             R.id.loginFragment,
-            R.id.chatFragment,
-            R.id.findPeopleFragment
+            R.id.chatFragment
     ));
-    private String userUID;
+    private MutableLiveData<String> userUID = new MutableLiveData<>("");
     ActivityMainBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,12 +89,8 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //
 //        }
-        userUID =UserRepo.getCurrentUserUID();
+        userUID.setValue(UserRepo.getCurrentUserUID());
         ////init trang thái online
-        if(userUID!=null&&!userUID.isEmpty()){
-            userRef= FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL).getReference("users").child(userUID).child("status");
-            userRef.onDisconnect().setValue("offline");
-        }
 
         binding.getRoot().post(()->{
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -113,6 +109,10 @@ public class MainActivity extends AppCompatActivity {
                 } else if (itemId == R.id.setting && currentDestId != R.id.settingFragment) {
                     navController.navigate(R.id.settingFragment, null, new NavOptions.Builder()
                             .setPopUpTo(R.id.settingFragment, true)
+                            .build());
+                } else if (itemId == R.id.search && currentDestId != R.id.findPeopleFragment) {
+                    navController.navigate(R.id.findPeopleFragment, null, new NavOptions.Builder()
+                            .setPopUpTo(R.id.findPeopleFragment, true)
                             .build());
                 }
                 return true;
@@ -156,6 +156,13 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            });
         });
+        userUID.observe(this,string -> {
+            if(userUID.getValue()!=null&&!userUID.getValue().isEmpty()){
+                userRef= FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL).getReference("users").child(userUID.getValue()).child("status");
+                userRef.onDisconnect().setValue("offline");
+            }
+        });
+
 
 
     }
@@ -164,16 +171,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(userUID!=null&&!userUID.isEmpty())
+        if(userUID!=null&&!userUID.getValue().isEmpty())
         {
-            handler.postDelayed(this::seOffLine, 10000);
+            seOffLine();
+//            handler.postDelayed(this::seOffLine, 10000);
         }
     }
+
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(userUID!=null&&!userUID.isEmpty()){
+        if(userUID!=null&&!userUID.getValue().isEmpty()){
                 userRef.setValue("online")
                 .addOnSuccessListener(runnable -> {
                     Log.e( "onResume:: ","ok" );
@@ -185,7 +194,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    @Override
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(userUID!=null&&!userUID.getValue().isEmpty()){
+            seOffLine();
+        }
+    }
+
+    //    @Override
 //    public void onTrimMemory(int level) {
 //        super.onTrimMemory(level);
 //        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {

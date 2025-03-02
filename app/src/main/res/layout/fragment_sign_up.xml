@@ -12,13 +12,13 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bg"
+        android:background="@color/primary"
         android:fillViewport="true">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:background="@color/bg"
+            android:background="@color/primary"
             android:paddingHorizontal="20dp"
             >
             <TextView
@@ -38,13 +38,13 @@
                 app:helperText="Tài khoản email"
                 android:hint="abc@gmail.com"
                 app:errorEnabled="true"
-                app:helperTextTextColor="@color/primary">
+                app:helperTextTextColor="@color/secondary">
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:id="@+id/edtEmail"
                     android:text="@={viewModel.email}"
-                    android:backgroundTint="@color/primary"
+                    android:backgroundTint="@color/secondary"
                     android:background="@drawable/corner_tr_bl"
                     />
             </com.google.android.material.textfield.TextInputLayout>
@@ -56,7 +56,7 @@
                 app:helperTextEnabled="true"
                 app:helperText="Nhập nick name"
                 android:hint="Nick name"
-                app:helperTextTextColor="@color/primary"
+                app:helperTextTextColor="@color/secondary"
                 android:layout_marginTop="10dp"
                 >
                 <com.google.android.material.textfield.TextInputEditText
@@ -64,7 +64,7 @@
                     android:layout_height="match_parent"
                     android:id="@+id/edtNickName"
                     android:text="@={viewModel.nickName}"
-                    android:backgroundTint="@color/primary"
+                    android:backgroundTint="@color/secondary"
                     android:background="@drawable/corner_tr_bl"
                     />
             </com.google.android.material.textfield.TextInputLayout>
@@ -76,7 +76,7 @@
                 app:helperText="Nhập mật khẩu"
                 android:hint="Mật khẩu"
                 app:endIconMode="password_toggle"
-                app:helperTextTextColor="@color/primary"
+                app:helperTextTextColor="@color/secondary"
                 android:layout_marginTop="10dp"
 
                 >
@@ -86,7 +86,7 @@
                     android:id="@+id/edtPassword"
                     android:inputType="textPassword"
                     android:text="@={viewModel.password}"
-                    android:backgroundTint="@color/primary"
+                    android:backgroundTint="@color/secondary"
                     android:background="@drawable/corner_tr_bl"
                     />
             </com.google.android.material.textfield.TextInputLayout>
@@ -99,7 +99,7 @@
                 android:hint="Xác nhận"
                 app:endIconMode="password_toggle"
                 app:hintTextColor="@color/white"
-                app:helperTextTextColor="@color/primary"
+                app:helperTextTextColor="@color/secondary"
                 android:layout_marginTop="10dp"
 
                 >
@@ -109,7 +109,7 @@
                     android:id="@+id/edtRePassword"
                     android:inputType="textPassword"
                     android:text="@={viewModel.rePassword}"
-                    android:backgroundTint="@color/primary"
+                    android:backgroundTint="@color/secondary"
                     android:background="@drawable/corner_tr_bl"
                     />
             </com.google.android.material.textfield.TextInputLayout>

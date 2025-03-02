@@ -25,7 +25,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -184,6 +183,34 @@ public class UserRepo {
                     callBack.call(null);
                 });
     }
+
+    public static void saveAVT(String imgUrl, String currentUserUID, SimpleCallBack<String> callBack) {
+        mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                .document(currentUserUID)
+                .update(DB.USER_COLLECTION.PROFILE_IMG.toString(),imgUrl)
+                .addOnSuccessListener(runnable -> {
+
+                    callBack.onSucess(imgUrl);
+                })
+                .addOnFailureListener(runnable -> {
+                    callBack.onError(runnable.getMessage());
+                });
+    }
+
+
+
+    public  static <T> void saveProperty(T data,String field, String currentUserUID, SimpleCallBack<T> callBack) {
+        mFirestore.collection(DB.USER_COLLECTION.NAME.toString())
+                .document(currentUserUID)
+                .update(field,data)
+                .addOnSuccessListener(runnable -> {
+                    callBack.onSucess(data);
+                })
+                .addOnFailureListener(runnable -> {
+                    callBack.onError(runnable.getMessage());
+                });
+    }
+
     public interface PeopleCallBack<T extends BasePeople>{
         void call(T person);
     }

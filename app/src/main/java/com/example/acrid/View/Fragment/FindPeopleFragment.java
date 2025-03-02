@@ -86,7 +86,7 @@ public class FindPeopleFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_find_people, container, false);
-        findPeopleViewModel = new ViewModelProvider(this).get(FindPeopleViewModel.class);
+        findPeopleViewModel = new ViewModelProvider(requireActivity()).get(FindPeopleViewModel.class);
         binding.setViewModel(findPeopleViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         navController= Navigation.findNavController(requireActivity(),R.id.nav_host_fragment);
@@ -102,9 +102,6 @@ public class FindPeopleFragment extends Fragment {
         binding.recycler.setAdapter(adapter);
 
         binding.searchbar.requestFocus();
-        binding.btnBack.setOnClickListener(view1 -> {
-            navController.popBackStack();
-        });
         //add friend pos là cập nhật vị trí hiên tại
         adapter.setOnAddFriendClickedListener((people,pos) -> {
             Log.e("onViewCreated: ", pos+"");

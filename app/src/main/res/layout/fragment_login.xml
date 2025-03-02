@@ -16,10 +16,10 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/bg"
+            android:background="@color/primary"
             android:fillViewport="true">
             <LinearLayout
-                android:background="@color/bg"
+                android:background="@color/primary"
                 android:paddingHorizontal="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -48,14 +48,14 @@
                     app:helperText="Tài khoản email"
                     android:hint="abc@gmail.com"
                     android:layout_marginTop="30dp"
-                    app:helperTextTextColor="@color/primary"
+                    app:helperTextTextColor="@color/secondary"
                     >
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:id="@+id/edtEmail"
                         android:text="@={viewModel.email}"
-                        android:backgroundTint="@color/primary"
+                        android:backgroundTint="@color/secondary"
                         android:background="@drawable/corner_tr_bl"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -66,7 +66,7 @@
                     app:helperTextEnabled="true"
                     app:helperText="Tài khoản email"
                     android:hint="Mật khẩu"
-                    app:helperTextTextColor="@color/primary"
+                    app:helperTextTextColor="@color/secondary"
                     app:endIconMode="password_toggle"
 
                     >
@@ -76,7 +76,7 @@
                         android:inputType="textPassword"
                         android:id="@+id/edtPassword"
                         android:text="@={viewModel.password}"
-                        android:backgroundTint="@color/primary"
+                        android:backgroundTint="@color/secondary"
                         android:background="@drawable/corner_tr_bl"
                         android:layout_marginTop="10dp"
                         />

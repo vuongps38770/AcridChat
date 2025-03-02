@@ -21,7 +21,7 @@
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/bg">
+            android:background="@color/primary">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -37,7 +37,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="?attr/actionBarSize"
                         android:id="@+id/toolBar"
-                        android:background="@color/bg"
+                        android:background="@color/primary"
                         app:layout_scrollFlags="exitUntilCollapsed|snap"
                         app:menu="@menu/contact_search_menu"
 
@@ -80,7 +80,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0"
-                                    android:textColor="@color/bg"
+                                    android:textColor="@color/primary"
                                     />
                             </LinearLayout>
                             <ImageView

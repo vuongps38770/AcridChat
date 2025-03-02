@@ -2,6 +2,7 @@
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <import type="androidx.lifecycle.ViewModelProvider"/>
+        <import type="android.view.View"/>
         <variable
             name="viewModel"
             type="com.example.acrid.viewModel.SettingViewModel" />
@@ -15,7 +16,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".View.Fragment.SettingFragment"
-        android:background="@color/bg">
+        android:background="@color/primary"
+        android:descendantFocusability="blocksDescendants"
+        >
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -51,13 +55,17 @@
 
                 </FrameLayout>
                 <TextView
+                    android:layout_marginTop="30dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/name"
                     android:text="@{viewModel.name}"
                     android:background="@drawable/transparent"
                     android:gravity="center"
-                    android:textSize="20dp"
+                    android:maxLines="1"
+
+                    android:ellipsize="middle"
+                    android:textSize="25dp"
                     android:textColor="@color/mainChild"
                     />
                 <TextView
@@ -65,12 +73,21 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/status"
                     android:background="@drawable/transparent"
-                    android:layout_gravity="center"
+                    android:gravity="center"
                     android:text="@{viewModel.status}"
                     android:layout_marginTop="10dp"
-                    android:textColor="@color/white"/>
+                    android:maxLines="1"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:singleLine="true"
+                    android:textColor="@color/white"
+                    />
 
                 <androidx.appcompat.widget.AppCompatButton
+                    android:layout_marginTop="20dp"
                     android:id="@+id/info"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -111,5 +128,40 @@
                     android:background="@drawable/transparent"/>
             </LinearLayout>
         </ScrollView>
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="@{viewModel.isOnLoading ? View.VISIBLE : View.GONE}"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:paddingHorizontal="20dp"
+            android:orientation="horizontal"
+            android:id="@+id/confirm_layout"
+            android:visibility="@{viewModel.imgFile==null?View.GONE:View.VISIBLE}">
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/black"
+                android:text="huỷ"
+                android:id="@+id/btnDismiss"
+                android:background="@drawable/all_corner"
+                android:backgroundTint="@color/secondary"
+                android:layout_marginEnd="10dp"
+                />
+            <androidx.appcompat.widget.AppCompatButton
+                android:backgroundTint="@color/mainChild"
+                android:background="@drawable/all_corner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/black"
+                android:text="Lưu"
+                android:id="@+id/btnConfirm"
+                android:layout_marginStart="10dp"/>
+        </LinearLayout>
     </FrameLayout>
 </layout>

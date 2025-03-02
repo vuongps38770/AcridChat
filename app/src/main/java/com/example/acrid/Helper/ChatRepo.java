@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import okhttp3.MediaType;
@@ -64,10 +65,11 @@ public class ChatRepo {
                 .collection(DB.MESSAGES_COLLECTION.NAME.toString());
 
         String newID = chatRef.document().getId();
-        message.setStatus(DB.CHAT_STATUS.SENT.toString());
+
         message.setMessageUID(newID);
         message.setTimestamp(System.currentTimeMillis());
         message.setMessage(message.getMessage().trim());
+
         chatRef.document(newID)
                 .set(message)
                 .addOnSuccessListener(unused -> {
@@ -75,6 +77,7 @@ public class ChatRepo {
                     Log.e("sendMessage: ","sent" );
                     updateConversation(conversationID,message);
                     createNewReadMark(conversationID,message.getSenderId());
+                    updateSendStatus(conversationID,newID);
                     sendNotification(new NotificationBody(
                             friendToken,
                             "Tin nhắn mới",
@@ -93,6 +96,15 @@ public class ChatRepo {
 
                 });
 
+    }
+    private static void updateSendStatus(String chatID,String msgId){
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put(DB.MESSAGES_COLLECTION.STATUS.toString(), DB.CHAT_STATUS.SENT.toString());
+        mFirebase.collection(DB.CONVERSATIONS_COLLECTION.NAME.toString())
+                .document(chatID)
+                .collection(DB.MESSAGES_COLLECTION.NAME.toString())
+                .document(msgId)
+                .update(updateData);
     }
     public static void addToReadMark(String conversationID, String usrUID){
         mFirebase.collection(DB.CONVERSATIONS_COLLECTION.NAME.toString())
@@ -276,9 +288,9 @@ public class ChatRepo {
 
     }
 
-    public static void getPreviousMessages(String conversationsUID, long timestamp,Consumer<List<Message>> list) {
+    public static void getPreviousMessages(String conversationsUID, long timestamp, BiConsumer<List<Message>, Boolean> callback) {
         Log.e("getPreviousMessages: ",timestamp+"" );
-        List<Message> listmsg = new ArrayList<>();
+        List<Message> listMSG = new ArrayList<>();
         mFirebase.collection(DB.CONVERSATIONS_COLLECTION.NAME.toString())
                 .document(conversationsUID)
                 .collection(DB.MESSAGES_COLLECTION.NAME.toString())
@@ -289,14 +301,15 @@ public class ChatRepo {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                         Message message = documentSnapshot.toObject(Message.class);
-                        if (message != null) listmsg.add(message);
+                        if (message != null) listMSG.add(message);
                     }
-                    Collections.reverse(listmsg);
-                    list.accept(listmsg);
+                    Collections.reverse(listMSG);
+                    boolean hasMoreMessages = listMSG.size() == 20;
+                    callback.accept(listMSG, hasMoreMessages);
                 })
                 .addOnFailureListener(e -> {
                     Log.e("getPreviousMessages", "Lỗi: " + e.getMessage());
-                    list.accept(Collections.emptyList());
+                    callback.accept(Collections.emptyList(), false);
                 });
     }
 
@@ -310,7 +323,8 @@ public class ChatRepo {
                     if (response.code()==200){
                         Log.e("sendNotification: ", "sent");
                     }else {
-                        Log.e("sendNotification: ", "not sent "+ response.code());
+                        Log.e("sendNotification: ", "not sent "+ response.code()
+                        +" "+body.getBody()+" "+body.getChatId()+body.getSenderId()+body.getToken());
                     }
                 }else {
                     Log.e("sendNotification: ", "not sent "+ response.raw());
@@ -330,6 +344,7 @@ public class ChatRepo {
         API api = notificationAPI.createRetrofitClass(API.class);
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), img);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", img.getName(), requestFile);
+        callBack.onLoading(true);
         api.sendImage(body).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
@@ -337,13 +352,18 @@ public class ChatRepo {
                     if (response.code()==200){
                         String url =(String) response.body().get("url");
                        callBack.onSuccess(url);
+                       callBack.onLoading(false);
                     }else {
                         Log.e("send: ", "not sent "+ response.code());
                         callBack.onFailure(response.message());
+                        callBack.onLoading(false);
+
                     }
                 }else {
                     Log.e("dend: ", "not sent "+ response.raw());
                     callBack.onFailure(response.message());
+                    callBack.onLoading(false);
+
                 }
             }
 
@@ -356,6 +376,7 @@ public class ChatRepo {
 
     public interface SendImageCallBack{
         void onSuccess(String imgUrl);
+        void onLoading(boolean onload);
         void onFailure(String err);
         void onError();
     }

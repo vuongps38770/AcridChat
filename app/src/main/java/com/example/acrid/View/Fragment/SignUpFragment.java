@@ -104,18 +104,21 @@ public class SignUpFragment extends Fragment {
         binding.btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(requireContext(), "click", Toast.LENGTH_SHORT).show();
                 signUpViewModel.signUp();
             }
         });
         signUpViewModel.signUpState.observe(getViewLifecycleOwner(), signUpState -> {
             if(signUpState instanceof SignUpState.Success){
                 navController.navigate(R.id.action_signUpFragment_to_loginFragment);
+                Toast.makeText(requireContext(), "Tài khoản đã được đng ký thành công!", Toast.LENGTH_SHORT).show();
+                signUpViewModel.isLoading.setValue(false);
             }
             if(signUpState instanceof SignUpState.Loading){
                 Toast.makeText(getContext(), "Loading", Toast.LENGTH_SHORT).show();
             }
             if(signUpState instanceof SignUpState.Error){
-
+                signUpViewModel.isLoading.setValue(false);
                 SignUpState.Error error = (SignUpState.Error) signUpState;
                 for(SignUpErorr e:error.getError()){
                     Log.e("onViewCreated: ", e.toString());

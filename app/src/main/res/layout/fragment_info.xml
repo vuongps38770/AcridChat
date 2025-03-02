@@ -1,40 +1,267 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
-
+    <data>
+        <import type="androidx.lifecycle.ViewModelProvider"/>
+        <import type="android.view.View"/>
+        <variable
+            name="viewModel"
+            type="com.example.acrid.viewModel.InfoViewModel" />
+    </data>
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".View.Fragment.InfoFragment"
-        android:background="@color/bg">
+        android:background="@color/primary">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingTop="40dp"
+            android:paddingHorizontal="20dp">
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="80dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
+
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/baseline_logout_24"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/user"
                     app:tint="@color/mainChild"/>
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="80dp"
                     android:layout_height="wrap_content"
-                    android:text="Ngày sinh:"
-                    android:textSize="20sp"
+                    android:text="Tên:"
+                    android:textSize="16sp"
                     android:layout_marginLeft="10dp"
                     android:textColor="@color/mainChild"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="dd/mm/yyyy"
-                    android:textSize="20sp"
+                    android:text="@{viewModel.name}"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="20dp"
+                    android:textColor="@color/white"
+                    />
+                <TextView
+                    android:id="@+id/edtName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chỉnh sửa"
+                    android:textColor="@color/mainChild"/>
+
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/secondary"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/signature_svgrepo_com"
+                        app:tint="@color/mainChild"/>
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="ID: "
+                        android:textSize="16sp"
+                        android:layout_marginLeft="10dp"
+                        android:textColor="@color/mainChild"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@{viewModel.idName}"
+                        android:textSize="16sp"
+                        android:layout_marginLeft="20dp"
+                        android:textColor="@color/white"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Chỉnh sửa    "
+                            android:textColor="@color/mainChild"/>
+
+
+                </LinearLayout>
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:src="@drawable/crown_svgrepo_com"
+                    app:tint="@color/mainChild"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="30dp"/>
+            </FrameLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/secondary"/>
+
+
+
+
+
+
+
+
+
+
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/baseline_mail_outline_24"
+                    app:tint="@color/mainChild"/>
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="Email:"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/mainChild"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@{viewModel.email}"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="20dp"
+                    android:textColor="@color/white"/>
+
+
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/secondary"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/baseline_description_24"
+                    app:tint="@color/mainChild"/>
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="Mô tả"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/mainChild"/>
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:maxLines="1"
+                    android:ellipsize="middle"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="20dp"
+                    android:textColor="@color/white"/>
+                <TextView
+                    android:id="@+id/edtDescription"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chỉnh sửa"
+                    android:textColor="@color/mainChild"/>
+
+
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/secondary"/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/birthday_cake_svgrepo_com"
+                    app:tint="@color/mainChild"/>
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="Ngày sinh:"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/mainChild"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@{viewModel.birthDate}"
+                    android:textSize="16sp"
                     android:layout_marginLeft="20dp"
                     android:textColor="@color/white"/>
                 <TextView
@@ -42,9 +269,53 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Chỉnh sửa"
-                    android:textColor="@color/mainChild"/>
+                    android:textColor="@color/mainChild"
+                   />
+
 
             </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/secondary"/>
+
+
+
+
+
+
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical|center_horizontal">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đã gia nhập ngày:"
+                    android:textSize="16sp"
+
+                    android:textColor="@color/mainChild"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="@{viewModel.createdDate}"
+                    android:textSize="16sp"
+                    android:layout_marginLeft="20dp"
+                    android:textColor="@color/white"/>
+
+
+            </LinearLayout>
+
+
+
+
+
 
         </LinearLayout>
     <ProgressBar
@@ -52,6 +323,48 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone"/>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:paddingHorizontal="20dp"
+            android:layout_marginBottom="40dp"
+            android:orientation="horizontal"
+            android:id="@+id/confirm_layout"
+            android:visibility="gone">
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/black"
+                android:text="huỷ"
+                android:id="@+id/btnDismiss"
+                android:background="@drawable/all_corner"
+                android:backgroundTint="@color/secondary"
+                android:layout_marginEnd="10dp"
+                />
+            <androidx.appcompat.widget.AppCompatButton
+                android:backgroundTint="@color/mainChild"
+                android:background="@drawable/all_corner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/black"
+                android:text="Lưu"
+                android:id="@+id/btnConfirm"
+                android:layout_marginStart="10dp"/>
+        </LinearLayout>
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_arrow_back_ios_24"
+            android:background="@drawable/transparent"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"/>
     </FrameLayout>
-    
+
 </layout>

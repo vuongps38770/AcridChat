@@ -59,15 +59,15 @@ public class FindPeopleAdapter extends RecyclerView.Adapter<FindPeopleAdapter.Vi
         People thisPeople= list.get(position);
 
         Glide.with(holder.profileIMG)
-                .load(thisPeople.getUserUID())
+                .load(thisPeople.getProfileIMG())
                 .placeholder(R.drawable.load)
                 .error(R.drawable.img)
                 .into(holder.profileIMG);
-        holder.status.setText(Optional.ofNullable(thisPeople.getDescription()).orElse("Không có mô tả"));
+        holder.status.setText(thisPeople.getIDName());
 //        if(UserRepo.getFriendUIDList(UserRepo.getCurrentUserUID()).getValue().contains(thisPeople.getUserUID())){
 //            holder.add.setVisibility(View.GONE);
 //        }
-        holder.name.setText(thisPeople.getIDName());
+        holder.name.setText(thisPeople.getDisplayName());
 
         holder.add.setVisibility(View.GONE);
         if(thisPeople.getFriendStatus().equals(DB.FRIEND_STATUS.PENDING.toString()) ){

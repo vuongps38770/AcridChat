@@ -3,7 +3,7 @@
     android:oneshot="false">
 
     <item android:drawable="@color/mainChild" android:duration="300" />
-    <item android:drawable="@color/bg" android:duration="300" />
+    <item android:drawable="@color/primary" android:duration="300" />
     <item android:drawable="@color/mainChild" android:duration="300" />
     <item android:drawable="@color/gray" android:duration="300" />
 </animation-list>

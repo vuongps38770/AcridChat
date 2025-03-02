@@ -4,7 +4,7 @@ import android.app.Application;
 
 public class GlobalData extends Application {
     private static GlobalData instance;
-    String curentConversationID;
+    String curentConversationID="";
 
     @Override
     public void onCreate() {

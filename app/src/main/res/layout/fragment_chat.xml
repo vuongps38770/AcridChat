@@ -26,7 +26,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/primary"
+            android:background="@color/secondary"
             >
 
             <LinearLayout
@@ -42,7 +42,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
-                    android:background="@color/bg"
+                    android:background="@color/primary"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingHorizontal="10dp"
@@ -96,7 +96,7 @@
                 </LinearLayout>
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:background="@color/primary"
+                        android:background="@color/secondary"
                         android:scrollIndicators="right"
                         android:id="@+id/recycler"
                         android:layout_width="match_parent"
@@ -127,7 +127,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:background="@color/bg">
+                    android:background="@color/primary">
                     <EditText
                         android:textColor="@color/white"
                         android:id="@+id/edtMessage"
@@ -185,12 +185,13 @@
             android:layout_width="wrap_content"
             android:paddingHorizontal="10dp"
             android:layout_height="20dp"
-            android:backgroundTint="@color/bg"
+            android:backgroundTint="@color/primary"
             android:layout_gravity="bottom|left"
             android:layout_marginBottom="45dp"
             android:text="Đang nhập..."
             android:textColor="@color/mainChild"
             android:background="@drawable/top_right_radius"
             android:visibility="gone"/>
+
     </FrameLayout>
 </layout>

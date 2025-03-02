@@ -40,7 +40,9 @@ import com.example.acrid.Constant.Const;
 import com.example.acrid.Constant.DB;
 import com.example.acrid.Helper.UserRepo;
 import com.example.acrid.Model.Friend;
+import com.example.acrid.Model.GlobalData;
 import com.example.acrid.R;
+import com.example.acrid.View.Dialog.ImageDialogFragment;
 import com.example.acrid.adapter.MessageAdapter;
 import com.example.acrid.databinding.FragmentChatBinding;
 import com.example.acrid.viewModel.ChatViewModel;
@@ -177,6 +179,12 @@ public class ChatFragment extends Fragment {
         binding.recycler.setAdapter(adapter);
         binding.recycler.setVerticalScrollBarEnabled(true);
         binding.recycler.setScrollbarFadingEnabled(false);
+        adapter.setItemClickListener(message -> {
+            chatViewModel.clickItem(requireActivity().getSupportFragmentManager(),message);
+        });
+
+
+
 
 
         chatViewModel.lastSeenMap.observe(getViewLifecycleOwner(), adapter::setLastSeenMap);
@@ -192,7 +200,6 @@ public class ChatFragment extends Fragment {
             LinearLayoutManager layoutManager = (LinearLayoutManager) binding.recycler.getLayoutManager();
             if (layoutManager != null) {
                 int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                int totalItems = messages.size();
 
                 // Trường hợp load tin nhắn cũ -> Giữ nguyên vị trí
                 if (messages.size() > oldSize) {
@@ -206,7 +213,7 @@ public class ChatFragment extends Fragment {
 
                 }
                 // Trường hợp có tin nhắn mới -> Cuộn xuống nếu đang ở gần cuối
-                if (lastVisibleItem >= totalItems - 3 && messages.size() > 0) {
+                if (lastVisibleItem >= oldSize - 3 && !messages.isEmpty()) {
                     binding.recycler.postDelayed(() ->
                             binding.recycler.smoothScrollToPosition(messages.size() - 1), 100);
                 }
@@ -367,7 +374,10 @@ public class ChatFragment extends Fragment {
                 binding.btnSendMessage.setVisibility(View.VISIBLE);
             }
         });
-
+        chatViewModel.notifiPos.observe(getViewLifecycleOwner(),integer -> {
+            if(integer<0) return;
+            adapter.notifyItemChanged(integer);
+        });
 
 
         binding.edtMessage.addTextChangedListener(new TextWatcher() {
@@ -396,9 +406,11 @@ public class ChatFragment extends Fragment {
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (layoutManager == null) return;
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-                if (firstVisibleItemPosition <= 3) {
+                if (firstVisibleItemPosition <= 3&&hasMoreMessages) {
                     Toast.makeText(requireContext(), "loadding", Toast.LENGTH_SHORT).show();
-                    chatViewModel.loadOlderMessages();
+                    chatViewModel.loadOlderMessages(aBoolean -> {
+                        hasMoreMessages=aBoolean;
+                    });
                 }
             }
         });
@@ -415,8 +427,26 @@ public class ChatFragment extends Fragment {
         binding.imgBack.setOnClickListener(view1 -> {
             navController.popBackStack();
         });
+
+
+
+        binding.avt.setOnClickListener(v -> {
+
+            ImageDialogFragment dialogFragment = new ImageDialogFragment(friend.getProfileIMG());
+            dialogFragment.show(requireActivity().getSupportFragmentManager(), "image_dialog");
+        });
+
+
+
+
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        GlobalData.getInstance().setCurentConversationID("");
+
+    }
 
     private void hideKeyboard() {
         View view = requireActivity().getCurrentFocus();
@@ -427,6 +457,7 @@ public class ChatFragment extends Fragment {
     }
     private Handler typingHandler = new Handler();
     private Runnable typingRunnable;
+    private boolean hasMoreMessages = true;
     @Override
     public void onPause() {
         super.onPause();
@@ -438,7 +469,6 @@ public class ChatFragment extends Fragment {
     public void onResume() {
         super.onResume();
         chatViewModel.isChatScreenActive.postValue(true);
-
     }
 
 
@@ -506,5 +536,7 @@ public class ChatFragment extends Fragment {
         inputStream.close();
         return file;
     }
+
+
 
 }

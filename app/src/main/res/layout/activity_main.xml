@@ -27,8 +27,8 @@
             app:itemIconTint="@color/bottomnav_color"
             app:itemTextColor="@color/bottomnav_color"
             android:id="@+id/bottom"
-            android:background="@color/bg"
-            app:itemActiveIndicatorStyle="@color/primary"
+            android:background="@color/primary"
+            app:itemActiveIndicatorStyle="@color/secondary"
 
             android:padding="0dp"
 
