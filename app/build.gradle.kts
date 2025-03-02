@@ -39,6 +39,7 @@ android {
         }
         debug{
             buildConfigField("String", "FIREBASE_SOCKET_URL",localProperties.getProperty("FIREBASE_SOCKET_URL"))
+            buildConfigField("String","APP_ID_AGORA", localProperties.getProperty("APP_ID_AGORA") )
         }
 
     }
@@ -103,6 +104,7 @@ dependencies {
     implementation ("com.google.code.gson:gson:2.12.1")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("io.agora.rtc:voice-sdk:4.5.0")
+    implementation ("com.github.Baseflow:PhotoView:2.3.0")
 
 
 

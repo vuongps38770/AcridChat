@@ -11,7 +11,22 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:id="@+id/time"/>
+
     <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="300dp"
+            android:maxHeight="300dp"
+            android:visibility="gone"
+            android:id="@+id/img"
+            android:scaleType="matrix"
+            android:layout_gravity="end"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/messageTextContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/rightbg"
@@ -26,12 +41,23 @@
             android:textColor="@android:color/white" />
 
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/msgStatus"/>
+        <ImageView
+            android:id="@+id/img_status"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="5dp"
+            app:tint="@color/primary" />
+    </LinearLayout>
 
-    <ImageView
-        android:id="@+id/img_status"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginStart="5dp"
-        app:tint="@color/bg"/>
+
 
 </LinearLayout>

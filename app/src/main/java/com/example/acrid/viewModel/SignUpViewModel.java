@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.acrid.Constant.Const;
 import com.example.acrid.Helper.AuthRepo;
 import com.example.acrid.Helper.UserRepo;
 import com.example.acrid.Model.User;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class SignUpViewModel extends ViewModel {
     public MutableLiveData<String> email = new MutableLiveData<>();
     public MutableLiveData<String> password = new MutableLiveData<>();
+    public MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     public MutableLiveData<String> rePassword = new MutableLiveData<>();
     public MutableLiveData<String> nickName = new MutableLiveData<>();
     public MutableLiveData<SignUpState> signUpState = new MutableLiveData<>();
@@ -31,7 +33,6 @@ public class SignUpViewModel extends ViewModel {
         password.setValue("");
         rePassword.setValue("");
         nickName.setValue("");
-
     }
 
     public void signUp() {
@@ -62,8 +63,10 @@ public class SignUpViewModel extends ViewModel {
         }
         Log.e("signUp: ",email.getValue()+"/"+password.getValue()+"/"+nickName.getValue() );
         User user = new User();
-        user.setIDName(nickName.getValue());
+        user.setDisplayName(nickName.getValue());
         user.setEmail(email.getValue());
+        user.setProfileIMG(Const.IMAGE_HOLDER_URL);
+        isLoading.setValue(true);
         AuthRepo.saveUser(user,password.getValue(),signUpState);
     }
     

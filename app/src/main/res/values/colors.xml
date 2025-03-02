@@ -2,8 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="primary">#ACACAC</color>
-    <color name="bg">#181A20</color>
+    <color name="primary">#181A20</color>
+    <color name="secondary">#ACACAC</color>
+
     <color name="gray">#d9d9d9</color>
     <color name="online">#90EE90</color>
     <color name="mainChild">#FCD535</color>

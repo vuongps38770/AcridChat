@@ -1,16 +1,21 @@
 package com.example.acrid.adapter;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.example.acrid.Constant.DB;
 import com.example.acrid.Model.Message;
 import com.example.acrid.R;
 import com.example.acrid.utils.TimeUtils;
@@ -23,7 +28,16 @@ import java.util.Map;
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
     private static final int MSG_RIGHT = 1;
     private static final int MSG_LEFT = 0;
-    private static final org.apache.commons.logging.Log log = LogFactory.getLog(MessageAdapter.class);
+    private final String SENT= DB.CHAT_STATUS.SENT.toString();
+    private final String FAILED= DB.CHAT_STATUS.FAILED.toString();
+    private final String SENDING= DB.CHAT_STATUS.SENDING.toString();
+
+    private ItemClickListener itemClickListener;
+
+    public void setItemClickListener(ItemClickListener itemClickListener) {
+        this.itemClickListener = itemClickListener;
+    }
+
     private RecyclerView recyclerView;
     private Context context;
     private List<Message> messageList;
@@ -78,16 +92,43 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messageList.get(position);
-        holder.tvMessage.setText(message.getMessage());
+        holder.messageTextContainer.setVisibility(View.GONE);
+        holder.img.setVisibility(View.GONE);
+
+        if(message.getType().equals(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.TEXT.toString())){
+            holder.messageTextContainer.setVisibility(View.VISIBLE);
+            holder.tvMessage.setText(message.getMessage());
+        }
+
+
+        else if (message.getType().equals(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.IMAGE.toString())){
+            holder.img.setVisibility(View.VISIBLE);
+            Glide.with(holder.img)
+                    .load(message.getMessage())
+                    .placeholder(R.drawable.load)
+                    .error(R.drawable.err)
+                    .into(holder.img);
+        }
+
+
+        else holder.itemView.setVisibility(View.GONE);
+
         String date = TimeUtils.getTimeAgo(message.getTimestamp());
         Log.e("onBindViewHolder: ",message.getTimestamp()+"////"+date );
         if (position > 0 && TimeUtils.getTimeAgo(messageList.get(position - 1).getTimestamp()).equals(date)) {
-
             holder.time.setVisibility(View.GONE);
         } else {
             holder.time.setVisibility(View.VISIBLE);
             holder.time.setText(date);
         }
+
+
+        holder.itemView.setOnClickListener(view -> {
+            if(itemClickListener==null) return;
+            itemClickListener.onclicked(message);
+        });
+
+
         if(lastSeenMap!=null&&getItemViewType(position)==MSG_RIGHT){
             Log.e("onBindViewHolder: ","not null" );
             holder.imgStatus.setVisibility(View.GONE);
@@ -97,23 +138,31 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 holder.imgStatus.setVisibility(View.VISIBLE);
             }else {
                 holder.imgStatus.setVisibility(View.GONE);
-
             }
         }else {
             Log.e("onBindViewHolder: ","null" );
         }
-        // Hiển thị trạng thái tin nhắn
-//        if (holder.imgStatus != null) {
-//            switch (message.getStatus()) {
-//                case "sent":
-//                    holder.imgStatus.setImageResource(R.drawable.ic_sent);
-//                    break;
-//                case "delivered":
-//                    holder.imgStatus.setImageResource(R.drawable.ic_delivered);
-//                    break;
-//                case "seen":
-//                    holder.imgStatus.setImageResource(R.drawable.ic_seen);
-//                    break;
+
+
+//        if (holder.imgStatus != null&&holder.msgStatus!=null) {
+//            holder.msgStatus.setVisibility(View.GONE);
+//            Log.e( "onBindViewHolderd: ",message.getStatus() );
+//            if(message.getStatus().equals(SENT)){
+//
+//                holder.msgStatus.setVisibility(View.VISIBLE);
+//                holder.msgStatus.setText("Đã gửi");
+//                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+//                    holder.msgStatus.setVisibility(View.GONE);
+//                }, 3000);
+//            } else if (message.getStatus().equals(SENDING)) {
+//
+//                holder.msgStatus.setVisibility(View.VISIBLE);
+//                holder.msgStatus.setText("Đang gửi");
+//
+//            }else if (message.getStatus().equals(FAILED)){
+//                holder.msgStatus.setVisibility(View.VISIBLE);
+//                holder.msgStatus.setText("Gửi thất bại");
+//
 //            }
 //        }
     }
@@ -143,23 +192,44 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     public void setData(List<Message> messages) {
+        int oldSize = messageList.size();
+        int newSize = messages.size();
 
         messageList.clear();
         messageList.addAll(messages);
-        Log.e("setData: ",messageList.size()+"" );
-        notifyDataSetChanged();
+        Log.e("setData: ", messageList.size() + "");
+
+        if (newSize > oldSize) {
+            notifyItemRangeInserted(oldSize, newSize - oldSize);
+        } else {
+            notifyDataSetChanged();
+        }
+
         calculateLastSeenIndex();
     }
-
+    private boolean isRecentMessage(Message message) {
+        long currentTime = System.currentTimeMillis();
+        return message.getTimestamp() > (currentTime - 5000);
+    }
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView tvMessage, time;
-        ImageView imgStatus;
+        TextView tvMessage, time,msgStatus;
+        ImageView imgStatus,img;
+        LinearLayout messageTextContainer;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMessage = itemView.findViewById(R.id.tv_message);
             imgStatus = itemView.findViewById(R.id.img_status);
             time = itemView.findViewById(R.id.time);
+            img = itemView.findViewById(R.id.img);
+            messageTextContainer = itemView.findViewById(R.id.messageTextContainer);
+            msgStatus = itemView.findViewById(R.id.msgStatus);
+
         }
+    }
+
+
+    public  static interface ItemClickListener{
+        void onclicked(Message message);
     }
 }

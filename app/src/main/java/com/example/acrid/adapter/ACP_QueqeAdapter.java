@@ -49,8 +49,8 @@ public class ACP_QueqeAdapter extends RecyclerView.Adapter<ACP_QueqeAdapter.View
                 .placeholder(R.drawable.load)
                 .error(R.drawable.img)
                 .into(holder.profileIMG);
-        holder.status.setText(Optional.ofNullable(thisPeople.getDescription()).orElse("Không có mô tả"));
-        holder.name.setText(thisPeople.getIDName());
+        holder.status.setText(thisPeople.getIDName());
+        holder.name.setText(thisPeople.getDisplayName());
         holder.add.setOnClickListener(view -> {
             Log.e("click: ", "click");
             if (onACPbtnClickListener != null) {

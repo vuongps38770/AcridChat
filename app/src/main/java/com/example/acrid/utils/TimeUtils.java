@@ -3,6 +3,7 @@ package com.example.acrid.utils;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -35,5 +36,10 @@ public class TimeUtils {
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         return sdf.format(timeInMillis);
+    }
+
+    public static String miliToString(long mili) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        return  sdf.format(new Date(mili));
     }
 }

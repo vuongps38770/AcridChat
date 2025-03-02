@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 
@@ -22,6 +23,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.acrid.R;
@@ -176,6 +179,9 @@ public class LoginFragment extends Fragment {
                 };
             }
         });
+        View rootView = requireActivity().findViewById(android.R.id.content);
+
+
 //        AnimationDrawable animation = (AnimationDrawable) binding.title.getTextColors();
 //        animation.start();
 //        mAuth = FirebaseAuth.getInstance();

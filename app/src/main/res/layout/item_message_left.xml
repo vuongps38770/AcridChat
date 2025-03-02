@@ -15,6 +15,22 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="left">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="300dp"
+            android:maxHeight="300dp"
+            android:visibility="gone"
+            android:id="@+id/img"
+            android:scaleType="matrix"
+            android:layout_gravity="start"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/messageTextContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="@drawable/leftbg"
         android:orientation="vertical"
         android:paddingHorizontal="16dp"

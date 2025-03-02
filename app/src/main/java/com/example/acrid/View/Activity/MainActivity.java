@@ -1,5 +1,8 @@
 package com.example.acrid.View.Activity;
 
+import static com.example.acrid.Helper.FireBaseService.CHANNEL_ID;
+import static com.example.acrid.Helper.FireBaseService.NOTIFICATION_NAME;
+
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -25,6 +28,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
@@ -56,10 +60,9 @@ public class MainActivity extends AppCompatActivity {
     private final Set<Integer> hiddenBottomBarFrag= new HashSet<>(Arrays.asList(
             R.id.signUpFragment,
             R.id.loginFragment,
-            R.id.chatFragment,
-            R.id.findPeopleFragment
+            R.id.chatFragment
     ));
-    private String userUID;
+    private MutableLiveData<String> userUID = new MutableLiveData<>("");
     ActivityMainBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,27 +75,22 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String channelId = "fcm_default_channel";
-            String channelName = "FCM Notifications";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-
-            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
-            channel.setDescription("Channel for FCM notifications");
-            channel.enableLights(true);
-            channel.enableVibration(true);
-
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
-        userUID =UserRepo.getCurrentUserUID();
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//            if (notificationManager.getNotificationChannel(CHANNEL_ID) == null) {
+//                NotificationChannel channel = new NotificationChannel(
+//                        CHANNEL_ID,
+//                        NOTIFICATION_NAME,
+//                        NotificationManager.IMPORTANCE_HIGH
+//                );
+//                channel.setDescription("Nhận thông báo tin nhắn từ bạn bè");
+//
+//                notificationManager.createNotificationChannel(channel);
+//            }
+//
+//        }
+        userUID.setValue(UserRepo.getCurrentUserUID());
         ////init trang thái online
-        if(userUID!=null&&!userUID.isEmpty()){
-            userRef= FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL).getReference("users").child(userUID).child("status");
-            userRef.onDisconnect().setValue("offline");
-        }
 
         binding.getRoot().post(()->{
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -111,6 +109,10 @@ public class MainActivity extends AppCompatActivity {
                 } else if (itemId == R.id.setting && currentDestId != R.id.settingFragment) {
                     navController.navigate(R.id.settingFragment, null, new NavOptions.Builder()
                             .setPopUpTo(R.id.settingFragment, true)
+                            .build());
+                } else if (itemId == R.id.search && currentDestId != R.id.findPeopleFragment) {
+                    navController.navigate(R.id.findPeopleFragment, null, new NavOptions.Builder()
+                            .setPopUpTo(R.id.findPeopleFragment, true)
                             .build());
                 }
                 return true;
@@ -154,20 +156,12 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            });
         });
-
-        if (!Settings.canDrawOverlays(this)) {
-            Log.d("ChatHead", "Chưa có quyền overlay, yêu cầu quyền...");
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 101);
-        } else {
-            Log.d("ChatHead", "Đã có quyền overlay, bắt đầu service...");
-            Intent serviceIntent = new Intent(this, ChatHeadService.class);
-            startService(serviceIntent);
-        }
-
-
-
+        userUID.observe(this,string -> {
+            if(userUID.getValue()!=null&&!userUID.getValue().isEmpty()){
+                userRef= FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL).getReference("users").child(userUID.getValue()).child("status");
+                userRef.onDisconnect().setValue("offline");
+            }
+        });
 
 
 
@@ -177,16 +171,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(userUID!=null&&!userUID.isEmpty())
+        if(userUID!=null&&!userUID.getValue().isEmpty())
         {
-            handler.postDelayed(this::seOffLine, 10000);
+            seOffLine();
+//            handler.postDelayed(this::seOffLine, 10000);
         }
     }
+
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(userUID!=null&&!userUID.isEmpty()){
+        if(userUID!=null&&!userUID.getValue().isEmpty()){
                 userRef.setValue("online")
                 .addOnSuccessListener(runnable -> {
                     Log.e( "onResume:: ","ok" );
@@ -197,18 +193,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(UserRepo.getCurrentUserUID().isEmpty()) return;
-        seOffLine();
+        if(userUID!=null&&!userUID.getValue().isEmpty()){
+            seOffLine();
+        }
     }
-    @Override
-    protected void onStop() {
-        super.onStop();
-//        seOffLine();
-    }
-//    @Override
+
+    //    @Override
 //    public void onTrimMemory(int level) {
 //        super.onTrimMemory(level);
 //        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
@@ -217,13 +211,7 @@ public class MainActivity extends AppCompatActivity {
 //    }
     private void seOffLine(){
         if (UserRepo.getCurrentUserUID()!=null||!UserRepo.getCurrentUserUID().isEmpty()) {
-            FirebaseDatabase.getInstance(BuildConfig.FIREBASE_SOCKET_URL)
-                    .getReference("users")
-                    .child(UserRepo.getCurrentUserUID())
-                    .child("status")
-                    .setValue("offline")
-                    .addOnSuccessListener(aVoid -> Log.e("onStop:: ", "User offline"))
-                    .addOnFailureListener(e -> Log.e("onStop:: ", e.getMessage()));
+            userRef.setValue("offline");
         }
 
     }

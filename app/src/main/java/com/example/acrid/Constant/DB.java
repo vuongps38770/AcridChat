@@ -45,6 +45,34 @@ public enum DB {;
             public String toString() {
                 return "token";
             }
+        },
+        DISPLAY_NAME{
+            @NonNull
+            @Override
+            public String toString() {
+                return "displayName";
+            }
+        },
+        PROFILE_IMG{
+            @NonNull
+            @Override
+            public String toString() {
+                return "profileIMG";
+            }
+        },
+        BIRTH_DATE{
+            @NonNull
+            @Override
+            public String toString() {
+                return "birthDay";
+            }
+        },
+        DESCRIPTION{
+            @NonNull
+            @Override
+            public String toString() {
+                return "description";
+            }
         }
 
     }
@@ -209,8 +237,24 @@ public enum DB {;
             public String toString() {
                 return "messageUID";
             }
-        }
+        };
 
+        public static enum MESSAGE_TYPE{
+            TEXT{
+                @NonNull
+                @Override
+                public String toString() {
+                    return "text";
+                }
+            },
+            IMAGE{
+                @NonNull
+                @Override
+                public String toString() {
+                    return "image";
+                }
+            }
+        }
     }
 
 

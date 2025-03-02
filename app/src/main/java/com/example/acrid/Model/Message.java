@@ -8,6 +8,7 @@ public class Message {
     private long timestamp;
     private String repliedToMessageUID;
 
+
     public Message( String message, String type, String senderId, String status, String repliedToMessageUID) {
         this.message = message;
         this.type = type;
@@ -73,5 +74,17 @@ public class Message {
 
     public void setRepliedToMessageUID(String repliedToMessageUID) {
         this.repliedToMessageUID = repliedToMessageUID;
+    }
+
+    public Message clone() {
+        Message clonedMessage = new Message();
+        clonedMessage.setMessageUID(this.messageUID);
+        clonedMessage.setMessage(this.message);
+        clonedMessage.setType(this.type);
+        clonedMessage.setSenderId(this.senderId);
+        clonedMessage.setStatus(this.status);
+        clonedMessage.setTimestamp(this.timestamp);
+        clonedMessage.setRepliedToMessageUID(this.repliedToMessageUID);
+        return clonedMessage;
     }
 }

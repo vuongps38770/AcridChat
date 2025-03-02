@@ -3,6 +3,8 @@ package com.example.acrid.Helper;
 import android.Manifest;
 import android.app.Notification;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -10,9 +12,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.acrid.Constant.DB;
+import com.example.acrid.Model.GlobalData;
 import com.example.acrid.R;
 import com.example.acrid.View.Activity.MainActivity;
 
+import com.example.acrid.services.ChatHeadService;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.Firebase;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -38,6 +43,7 @@ import androidx.work.WorkerParameters;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
 import java.io.FileInputStream;
@@ -49,10 +55,10 @@ import java.util.Scanner;
 
 public class FireBaseService extends FirebaseMessagingService {
 
-    private static final String FCM_URL = "https://fcm.googleapis.com/v1/projects/273955278707/messages:send";
-    private static final String SERVICE_ACCOUNT_JSON_PATH = "D:\\FPTPolytechnic\\DuAnTotNghiep\\key\\key.json"; // Đường dẫn file JSON
     private static final String TAG = "MyFirebaseMsgService";
     public static final String CHANNEL_ID = "AcridChannel";
+    public static final String NOTIFICATION_NAME = "Nhận thông báo tin nhắn";
+    private static final org.apache.commons.logging.Log log = LogFactory.getLog(FireBaseService.class);
 
     // [START receive_message]
     @Override
@@ -64,7 +70,6 @@ public class FireBaseService extends FirebaseMessagingService {
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use WorkManager.
                 scheduleJob();
@@ -72,36 +77,62 @@ public class FireBaseService extends FirebaseMessagingService {
                 // Handle message within 10 seconds
                 handleNow();
             }
-
         }
 
         // Check if message contains a notification payload.
-        if (remoteMessage.getNotification() != null) {
+        if (remoteMessage.getNotification() != null&&!remoteMessage.getData().isEmpty()) {
+            String senderName = remoteMessage.getData().get("senderName");
+            String messageType = remoteMessage.getData().get("messageType");
+            String chatId = remoteMessage.getData().get("chatId");
+            Log.e("onMessageReceived: ",senderName+"   "+messageType+"   "+chatId );
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
-            showNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody());
+            if (GlobalData.getInstance().getCurentConversationID()!=null&&GlobalData.getInstance().getCurentConversationID().equals(chatId)){
+
+                Uri notificationSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                // Phát âm thanh
+                Ringtone ringtone = RingtoneManager.getRingtone(this, notificationSound);
+                if (ringtone != null) {
+                    ringtone.play();
+                }
+                return;
+            }
+            showNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody(),senderName,messageType);
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
     }
-    private void showNotification(String title, String message) {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    private void showNotification(String title, String message, String senderName, String messageType) {
+        NotificationManager notificationManager =  getSystemService(NotificationManager.class);
+        NotificationChannel existingChannel = notificationManager.getNotificationChannel(CHANNEL_ID);
+        String titlefinal = "Tin nhắn từ "+senderName;
+        String bodyFinal = messageType.equals(DB.MESSAGES_COLLECTION.MESSAGE_TYPE.TEXT.toString())
+                ?message:"Đã gửi 1 ảnh";
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+        if (existingChannel == null) {
+            Log.d(TAG, "Creating new notification channel: " + CHANNEL_ID);
             NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID, "Acrid Notifications",
+                    CHANNEL_ID,
+                    NOTIFICATION_NAME,
                     NotificationManager.IMPORTANCE_HIGH
             );
-
+            channel.setDescription("Nhận thông báo tin nhắn từ bạn bè");
             notificationManager.createNotificationChannel(channel);
+        } else {
+            Log.d(TAG, "Notification channel already exists: " + existingChannel.getName());
         }
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setSmallIcon(R.drawable.img)
+                .setContentTitle(titlefinal)
+                .setContentText(bodyFinal)
+                .setSmallIcon(R.drawable.binance)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
                 .build();
+//        Intent serviceIntent = new Intent(this, ChatHeadService.class);
+//        startService(serviceIntent);
+
 
         notificationManager.notify(0, notification);
     }
@@ -143,37 +174,6 @@ public class FireBaseService extends FirebaseMessagingService {
     private void sendRegistrationToServer(String token) {
         // TODO: Implement this method to send token to your app server.
         UserRepo.saveToken(UserRepo.getCurrentUserUID());
-    }
-
-    private void sendNotification(String messageBody) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_IMMUTABLE);
-
-        String channelId = "fcm_default_channel";
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this, channelId)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("FCM Message")
-                        .setContentText(messageBody)
-                        .setAutoCancel(true)
-                        .setSound(defaultSoundUri)
-                        .setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // Since android Oreo notification channel is needed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId,
-                    "Channel human readable title",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
 
     public static class MyWorker extends Worker {

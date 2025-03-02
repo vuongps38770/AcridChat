@@ -1,5 +1,6 @@
 package com.example.acrid.viewModel;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -11,9 +12,11 @@ import com.example.acrid.Helper.UserRepo;
 import com.example.acrid.Model.Friend;
 import com.example.acrid.Model.People;
 import com.example.acrid.State.SimpleCallBack;
+import com.example.acrid.View.Dialog.InfoDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ContactViewModel extends ViewModel {
@@ -44,11 +47,10 @@ public class ContactViewModel extends ViewModel {
 
     private void reisterFriendData(){
         UserRepo.getFriendList(UserRepo.getCurrentUserUID()).observeForever(friends -> {
-            Collections.sort(friends,(t1, t2) -> t1.getIDName().compareTo(t2.getIDName()));
+            friends.sort(Comparator.comparing(Friend::getDisplayName));
             ogFriendList.clear();
             ogFriendList.addAll(friends);
             friendListData.postValue(friends);
-
         });
     }
     public void gotoChat(String partnerID){
@@ -113,4 +115,8 @@ public class ContactViewModel extends ViewModel {
         });
     }
 
+    public void showProfile(String friendUID,Context context) {
+        InfoDialog dialog = new InfoDialog(friendUID,context);
+        dialog.show();
+    }
 }

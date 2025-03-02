@@ -24,7 +24,7 @@ public class PopupBuilder {
         container = new LinearLayout(context);
         container.setOrientation(LinearLayout.VERTICAL);
         container.setPadding(20, 20, 20, 20);
-        container.setBackgroundResource(R.drawable.transparent);
+        container.setBackgroundResource(R.drawable.window_menu_bg);
     }
 
     public PopupBuilder addItem(String text, View.OnClickListener listener) {
@@ -52,7 +52,7 @@ public class PopupBuilder {
         TextView textView = new TextView(context);
         textView.setText(text);
         textView.setPadding(20, 20, 20, 20);
-        textView.setBackgroundResource(R.drawable.add_friend_button);
+        textView.setBackgroundResource(R.drawable.transparent);
         textView.setTextColor(textColor);
         textView.setOnClickListener(v -> {
             if (listener != null) listener.onClick(v);

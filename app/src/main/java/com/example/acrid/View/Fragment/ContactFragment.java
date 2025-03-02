@@ -97,7 +97,7 @@ public class ContactFragment extends Fragment {
                              Bundle savedInstanceState) {
         navController = Navigation.findNavController(requireActivity(),R.id.nav_host_fragment);
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_contact,container,false);
-        contactViewModel = new ViewModelProvider(this).get(ContactViewModel.class);
+        contactViewModel = new ViewModelProvider(requireActivity()).get(ContactViewModel.class);
         binding.setViewmodel(contactViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.scrollView.setOnTouchListener((view, motionEvent) -> {
@@ -122,9 +122,13 @@ public class ContactFragment extends Fragment {
                         contactViewModel.selectedFriend.postValue(friend);
                         contactViewModel.gotoChat(friend.getUserUID());
                     })
+                    .addItem("Xem thông tin",view2 -> {
+                        contactViewModel.showProfile(friend.getUserUID(),requireContext());
+                    })
                     .addItem("Huỷ kết bạn", Color.RED,view2 -> {
 
                     })
+
                     .build()
                     .show(view1);
         });

@@ -89,7 +89,7 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding=DataBindingUtil.inflate(inflater,R.layout.fragment_home,container,false);
-        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
         binding.setViewModel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         navController = Navigation.findNavController(requireActivity(),R.id.nav_host_fragment);
@@ -116,10 +116,8 @@ public class HomeFragment extends Fragment {
                     .build();
         });
         homeViewModel.conversationListData.observe(getViewLifecycleOwner(), adapter::setData);
+        homeViewModel.searchQuery.observe(getViewLifecycleOwner(), adapter::search);
 
-        binding.search.setOnClickListener(view1 -> {
-            navController.navigate(R.id.action_homeFragment_to_findPeopleFragment);
-        });
     }
 
     @Override

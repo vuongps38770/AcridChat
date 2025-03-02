@@ -10,6 +10,10 @@
         android:title="danh bạ"
         android:icon="@drawable/contacts"
         app:showAsAction="never"/>
+    <item android:id="@+id/search"
+        android:title="Tìm kiếm"
+        app:showAsAction="never"
+        android:icon="@drawable/baseline_search_24"/>
     <item android:id="@+id/setting"
         android:title="Tài khoản"
         android:icon="@drawable/user"

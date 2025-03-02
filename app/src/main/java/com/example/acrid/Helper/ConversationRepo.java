@@ -115,6 +115,16 @@ public class ConversationRepo {
                             pendingTasks.decrementAndGet();
                             continue;
                         }
+                        if(conversation.getLastMessage()==null){
+                            Log.e("getListConversation: ","null" );
+                            pendingTasks.decrementAndGet();
+                            continue;
+                        }
+                        if(conversation.getLastMessage().getMessage()==null){
+                            Log.e("getListConversation: ","null" );
+                            pendingTasks.decrementAndGet();
+                            continue;
+                        }
 
                         list.add(conversation);
 

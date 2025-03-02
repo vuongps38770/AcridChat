@@ -18,25 +18,38 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 public class AuthRepo {
+    private static final org.apache.commons.logging.Log log = LogFactory.getLog(AuthRepo.class);
     private static FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     private static FirebaseAuth mAuth = FirebaseAuth.getInstance();
     public static void saveUser(@NonNull User user, @NonNull String password, @NonNull MutableLiveData<SignUpState> signUpStateLiveData) {
-        if(password!=null&&!user.getEmail().isEmpty()){
-            Log.e( "saveUser: ",password );
-            Log.e( "saveUser: ",user.getEmail() );
-        }else {
-            Log.e( "saveUser: ","null" );
+        if (password != null && !user.getEmail().isEmpty()) {
+            Log.e("saveUser: ", password);
+            Log.e("saveUser: ", user.getEmail());
+        } else {
+            Log.e("saveUser: ", "null");
             return;
         }
+        generateUniqueUserIDName(userIDName -> {
+            Log.e("saveUser: ", userIDName);
+            List<SignUpErorr> errors = new ArrayList<>();
+            user.setIDName(userIDName);
+            saveUserToDB(user,password,errors,signUpStateLiveData);
+        });
+    }
+    private static void saveUserToDB(@NonNull User user, @NonNull String password, List<SignUpErorr> errors,@NonNull MutableLiveData<SignUpState> signUpStateLiveData ) {
         signUpStateLiveData.setValue(SignUpState.Loading.INSTANCE);
-        List<SignUpErorr> errors = new ArrayList<>();
+
         //hàm tạo user với email và password
         mAuth.createUserWithEmailAndPassword(user.getEmail(), password)
                 .addOnCompleteListener(task -> {
@@ -101,8 +114,38 @@ public class AuthRepo {
                     }
                     signUpStateLiveData.setValue(new SignUpState.Error(new ArrayList<>(errors)));
                 });
+
     }
 
+    private static void generateUniqueUserIDName(OnUserIDGeneratedListener listener) {
+        generateID((uniqueID) -> {
+            if (listener != null) listener.onGenerated(uniqueID);
+        });
+    }
+
+    private static void generateID(OnUserIDGeneratedListener listener) {
+        String userIDName = "usr" + new Random().nextInt(9999);
+
+        mFirestore.collection("users")
+                .whereEqualTo(DB.USER_COLLECTION.DISPLAY_NAME.toString(), userIDName)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // ID trùng -> thử lại
+                        generateID(listener);
+                    } else {
+                        // ID duy nhất -> sử dụng
+                        if (listener != null) listener.onGenerated(userIDName);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e( "generateID: ", e.getMessage());
+                });
+    }
+
+    public interface OnUserIDGeneratedListener {
+        void onGenerated(String userIDName);
+    }
     public static void loginWithEmailAndPassword(String email, String password, @NonNull MutableLiveData<LoginState> loginState) {
         loginState.setValue(LoginState.Loading.INSTANCE);
         List<LoginError> errors = new ArrayList<>();

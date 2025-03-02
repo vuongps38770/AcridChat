@@ -5,7 +5,7 @@
 <!--        android:endColor="#444"-->
 <!--        android:angle="315"-->
 <!--        />-->
-    <solid android:color="@color/bg"/>
+    <solid android:color="@color/primary"/>
 
 
 </shape>

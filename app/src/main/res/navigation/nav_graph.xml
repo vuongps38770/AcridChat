@@ -69,7 +69,11 @@
         android:id="@+id/settingFragment"
         android:name="com.example.acrid.View.Fragment.SettingFragment"
         android:label="fragment_setting"
-        tools:layout="@layout/fragment_setting" />
+        tools:layout="@layout/fragment_setting" >
+        <action
+            android:id="@+id/action_settingFragment_to_infoFragment"
+            app:destination="@id/infoFragment" />
+    </fragment>
     <fragment
         android:id="@+id/ACPFragment"
         android:name="com.example.acrid.View.Fragment.ACPFragment"
@@ -79,4 +83,8 @@
             android:id="@+id/action_ACPFragment_to_contactFragment"
             app:destination="@id/contactFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/infoFragment"
+        android:name="com.example.acrid.View.Fragment.InfoFragment"
+        android:label="InfoFragment" />
 </navigation>
